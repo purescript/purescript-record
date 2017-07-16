@@ -1,8 +1,7 @@
-# Dependencies
-.psci_modules
-bower_components
-node_modules
-
-# Generated files
-.psci
-output
+/.*
+!/.gitignore
+!/.eslintrc.json
+!/.travis.yml
+/bower_components/
+/node_modules/
+/output/
