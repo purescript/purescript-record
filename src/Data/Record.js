@@ -7,7 +7,7 @@ exports.unsafeGet = function(label, rec) {
 exports.unsafeSet = function(label, value, rec) {
   var copy = {};
   for (var key in rec) {
-      if ({}.hasOwnProperty.call(v, key)) {
+      if ({}.hasOwnProperty.call(rec, key)) {
           copy[key] = rec[key];
       };
   };
