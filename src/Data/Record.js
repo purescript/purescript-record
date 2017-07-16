@@ -14,3 +14,13 @@ exports.unsafeSet = function(label, value, rec) {
   copy[label] = value;
   return copy;
 };
+
+exports.unsafeDelete = function(label, rec) {
+  var copy = {};
+  for (var key in rec) {
+    if (key !== label && {}.hasOwnProperty.call(rec, key)) {
+      copy[key] = rec[key];
+    }
+  }
+  return copy;
+};
