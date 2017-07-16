@@ -15,5 +15,9 @@
     "test",
     "bower.json",
     "package.json"
-  ]
+  ],
+  "dependencies": {
+    "purescript-symbols": "^3.0.0",
+    "purescript-functions": "^3.0.0"
+  }
 }
