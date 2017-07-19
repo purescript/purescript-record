@@ -83,6 +83,7 @@ modify l f r = set l (f (get l r)) r
 insert
   :: forall r1 r2 l a
    . IsSymbol l
+  => RowLacks l r1
   => RowCons l a r1 r2
   => SProxy l
   -> a
