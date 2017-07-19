@@ -12,7 +12,7 @@ import Type.Row (class RowLacks)
 
 foreign import unsafeGet :: forall r a. Fn2 String (Record r) a
 foreign import unsafeSet :: forall r1 r2 a. Fn3 String a (Record r1) (Record r2)
-foreign import unsafeDelete :: forall r1 r2 a. Fn2 String (Record r1) (Record r2)
+foreign import unsafeDelete :: forall r1 r2. Fn2 String (Record r1) (Record r2)
 
 -- | Get a property for a label which is specified using a value-level proxy for
 -- | a type-level string.
