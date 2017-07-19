@@ -1,10 +1,10 @@
 "use strict";
 
-exports.unsafeGet = function(label, rec) {
+exports.unsafeGetFn = function(label, rec) {
   return rec[label];
 };
 
-exports.unsafeSet = function(label, value, rec) {
+exports.unsafeSetFn = function(label, value, rec) {
   var copy = {};
   for (var key in rec) {
     if ({}.hasOwnProperty.call(rec, key)) {
@@ -15,7 +15,7 @@ exports.unsafeSet = function(label, value, rec) {
   return copy;
 };
 
-exports.unsafeDelete = function(label, rec) {
+exports.unsafeDeleteFn = function(label, rec) {
   var copy = {};
   for (var key in rec) {
     if (key !== label && {}.hasOwnProperty.call(rec, key)) {
