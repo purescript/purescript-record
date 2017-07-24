@@ -75,7 +75,7 @@ modify l f r = set l (f (get l r)) r
 -- |
 -- | ```purescript
 -- | insert (SProxy :: SProxy "x")
--- |   :: forall r a. a -> { | r } -> { x :: a | r }
+-- |   :: forall r a. RowLacks "x" r => a -> { | r } -> { x :: a | r }
 -- | ```
 insert
   :: forall r1 r2 l a
