@@ -6,13 +6,10 @@ module Data.Record
   , delete
   ) where
 
-import Data.Function.Uncurried (Fn2, Fn3, runFn2, runFn3)
+import Data.Function.Uncurried (runFn2, runFn3)
+import Data.Record.Unsafe (unsafeGetFn, unsafeSetFn, unsafeDeleteFn)
 import Data.Symbol (class IsSymbol, SProxy, reflectSymbol)
 import Type.Row (class RowLacks)
-
-foreign import unsafeGet :: forall r a. Fn2 String (Record r) a
-foreign import unsafeSet :: forall r1 r2 a. Fn3 String a (Record r1) (Record r2)
-foreign import unsafeDelete :: forall r1 r2. Fn2 String (Record r1) (Record r2)
 
 -- | Get a property for a label which is specified using a value-level proxy for
 -- | a type-level string.
@@ -29,7 +26,7 @@ get
   => SProxy l
   -> Record r
   -> a
-get l r = runFn2 unsafeGet (reflectSymbol l) r
+get l r = runFn2 unsafeGetFn (reflectSymbol l) r
 
 -- | Set a property for a label which is specified using a value-level proxy for
 -- | a type-level string.
@@ -49,7 +46,7 @@ set
   -> b
   -> Record r1
   -> Record r2
-set l b r = runFn3 unsafeSet (reflectSymbol l) b r
+set l b r = runFn3 unsafeSetFn (reflectSymbol l) b r
 
 -- | Modify a property for a label which is specified using a value-level proxy for
 -- | a type-level string.
@@ -89,7 +86,7 @@ insert
   -> a
   -> Record r1
   -> Record r2
-insert l a r = runFn3 unsafeSet (reflectSymbol l) a r
+insert l a r = runFn3 unsafeSetFn (reflectSymbol l) a r
 
 -- | Delete a property for a label which is specified using a value-level proxy for
 -- | a type-level string.
@@ -111,4 +108,4 @@ delete
   => SProxy l
   -> Record r2
   -> Record r1
-delete l r = runFn2 unsafeDelete (reflectSymbol l) r
+delete l r = runFn2 unsafeDeleteFn (reflectSymbol l) r
