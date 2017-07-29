@@ -4,12 +4,16 @@ module Data.Record
   , modify
   , insert
   , delete
+  , equal
+  , class EqualFields
+  , equalFields
   ) where
 
 import Data.Function.Uncurried (runFn2, runFn3)
 import Data.Record.Unsafe (unsafeGetFn, unsafeSetFn, unsafeDeleteFn)
-import Data.Symbol (class IsSymbol, SProxy, reflectSymbol)
-import Type.Row (class RowLacks)
+import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
+import Prelude (class Eq, (&&), (==))
+import Type.Row (class RowLacks, class RowToList, Cons, Nil, RLProxy(RLProxy), kind RowList)
 
 -- | Get a property for a label which is specified using a value-level proxy for
 -- | a type-level string.
@@ -109,3 +113,31 @@ delete
   -> Record r2
   -> Record r1
 delete l r = runFn2 unsafeDeleteFn (reflectSymbol l) r
+
+-- | Check two records of the same type for equality.
+equal
+  :: forall r rs
+   . RowToList r rs
+  => EqualFields rs r
+  => Record r
+  -> Record r
+  -> Boolean
+equal a b = equalFields (RLProxy :: RLProxy rs) a b
+
+class EqualFields (rs :: RowList) (row :: # Type) | rs -> row where
+  equalFields :: RLProxy rs -> Record row -> Record row -> Boolean
+
+instance equalFieldsCons
+  ::
+  ( IsSymbol name
+  , Eq ty
+  , RowCons name ty tailRow row
+  , EqualFields tail row
+  ) => EqualFields (Cons name ty tail) row where
+  equalFields _ a b = get' a == get' b && equalRest a b
+    where
+      get' = get (SProxy :: SProxy name)
+      equalRest = equalFields (RLProxy :: RLProxy tail)
+
+instance equalFieldsNil :: EqualFields Nil row where
+  equalFields _ _ _ = true
