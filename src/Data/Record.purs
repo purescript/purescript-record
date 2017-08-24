@@ -4,12 +4,15 @@ module Data.Record
   , modify
   , insert
   , delete
+  , pick
   ) where
 
 import Data.Function.Uncurried (runFn2, runFn3)
-import Data.Record.Unsafe (unsafeGetFn, unsafeSetFn, unsafeDeleteFn)
-import Data.Symbol (class IsSymbol, SProxy, reflectSymbol)
-import Type.Row (class RowLacks)
+import Data.Record.Unsafe (unsafeDeleteFn, unsafeGetFn, unsafePickFn, unsafeSetFn)
+import Data.Record.RowLabels (class RowLabels, labels)
+import Data.Symbol (class IsSymbol, reflectSymbol)
+import Type.Data.Symbol (SProxy)
+import Type.Row (class ListToRow, class RowLacks, class RowToList, class SubRow, RProxy)
 
 -- | Get a property for a label which is specified using a value-level proxy for
 -- | a type-level string.
@@ -109,3 +112,23 @@ delete
   -> Record r2
   -> Record r1
 delete l r = runFn2 unsafeDeleteFn (reflectSymbol l) r
+
+-- | Pick a subrow from a record.  It is similar to `get` but operators on
+-- | multiple lables at once and returns a new record.
+-- |
+-- | For example:
+-- | 
+-- | ```purescript
+-- | pick (RProxy :: RProxy (x :: Int, y :: Int)) { x: 1, y: 2, name: "point" }
+-- |  :: { x :: Int, y :: Int }
+-- | ```
+pick
+  :: forall r s l
+   . SubRow r s
+  => RowToList r l
+  => ListToRow l r
+  => RowLabels l
+  => RProxy r
+  -> Record s
+  -> Record r
+pick p r = runFn2 unsafePickFn (labels p) r

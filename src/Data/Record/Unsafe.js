@@ -24,3 +24,13 @@ exports.unsafeDeleteFn = function(label, rec) {
   }
   return copy;
 };
+
+exports.unsafePickFn = function(labels, rec) {
+  var copy = {};
+  for (var key in rec) {
+    if (labels.indexOf(key) !== -1 && {}.hasOwnProperty.call(rec, key)) {
+      copy[key] = rec[key];
+    }
+  }
+  return copy;
+}
