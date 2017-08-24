@@ -12,7 +12,7 @@ import Data.Record.Unsafe (unsafeDeleteFn, unsafeGetFn, unsafePickFn, unsafeSetF
 import Data.Record.RowLabels (class RowLabels, labels)
 import Data.Symbol (class IsSymbol, reflectSymbol)
 import Type.Data.Symbol (SProxy)
-import Type.Row (class ListToRow, class RowLacks, class RowToList, class SubRow, RProxy)
+import Type.Row (class ListToRow, class RowLacks, class RowToList, RProxy)
 
 -- | Get a property for a label which is specified using a value-level proxy for
 -- | a type-level string.
@@ -123,8 +123,8 @@ delete l r = runFn2 unsafeDeleteFn (reflectSymbol l) r
 -- |  :: { x :: Int, y :: Int }
 -- | ```
 pick
-  :: forall r s l
-   . SubRow r s
+  :: forall r s t l
+   . Union r t s
   => RowToList r l
   => ListToRow l r
   => RowLabels l
