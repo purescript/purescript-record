@@ -33,4 +33,4 @@ exports.unsafePickFn = function(labels, rec) {
     }
   }
   return copy;
-}
+};
