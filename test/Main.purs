@@ -4,6 +4,7 @@ import Prelude
 
 import Control.Monad.Eff (Eff)
 import Data.Record (delete, get, insert, modify, set)
+import Data.Record.ST (pokeSTRecord, pureSTRecord, thawSTRecord)
 import Data.Symbol (SProxy(..))
 import Test.Assert (ASSERT, assert')
 
@@ -22,3 +23,12 @@ main = do
     get x (modify x (_ + 1) (set x 0 { x: 42 })) == 1
   assert' "delete, get" $
     get x (delete y { x: 42, y: 1337 }) == 42
+
+  let stTest1 = pureSTRecord do
+        rec <- thawSTRecord { x: 41, y: "" }
+        pokeSTRecord x 42 rec
+        pokeSTRecord y "testing" rec
+        pure rec
+
+  assert' "pokeSTRecord" $
+    stTest1.x == 42 && stTest1.y == "testing"
