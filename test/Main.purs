@@ -5,6 +5,7 @@ import Prelude
 import Control.Monad.Eff (Eff)
 import Data.Record (delete, get, insert, modify, set)
 import Data.Record.ST (pokeSTRecord, pureSTRecord, thawSTRecord)
+import Data.Record.Builder as Builder
 import Data.Symbol (SProxy(..))
 import Test.Assert (ASSERT, assert')
 
@@ -32,3 +33,10 @@ main = do
 
   assert' "pokeSTRecord" $
     stTest1.x == 42 && stTest1.y == "testing"
+    
+  let testBuilder = Builder.build (Builder.insert x 42
+                                  >>> Builder.merge { y: true, z: "testing" }
+                                  >>> Builder.delete y) {}
+
+  assert' "Data.Record.Builder" $
+    testBuilder.x == 42 && testBuilder.z == "testing"
