@@ -3,8 +3,8 @@ module Test.Main where
 import Prelude
 
 import Control.Monad.Eff (Eff)
-import Data.Record (delete, get, insert, modify, set)
 import Data.Record.Builder as Builder
+import Data.Record (delete, get, insert, modify, set, equal)
 import Data.Symbol (SProxy(..))
 import Test.Assert (ASSERT, assert')
 
@@ -23,6 +23,10 @@ main = do
     get x (modify x (_ + 1) (set x 0 { x: 42 })) == 1
   assert' "delete, get" $
     get x (delete y { x: 42, y: 1337 }) == 42
+  assert' "equal" $
+    equal { a: 1, b: "b", c: true } { a: 1, b: "b", c: true }
+  assert' "equal2" $
+    not $ equal { a: 1, b: "b", c: true } { a: 1, b: "b", c: false }
 
   let testBuilder = Builder.build (Builder.insert x 42
                                   >>> Builder.merge { y: true, z: "testing" }
