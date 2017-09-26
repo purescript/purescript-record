@@ -5,6 +5,7 @@ import Prelude
 import Control.Monad.Eff (Eff)
 import Data.Record.Builder as Builder
 import Data.Record (delete, get, insert, modify, set, equal)
+import Data.Record.Unsafe (unsafeHas)
 import Data.Symbol (SProxy(..))
 import Test.Assert (ASSERT, assert')
 
@@ -27,6 +28,10 @@ main = do
     equal { a: 1, b: "b", c: true } { a: 1, b: "b", c: true }
   assert' "equal2" $
     not $ equal { a: 1, b: "b", c: true } { a: 1, b: "b", c: false }
+  assert' "unsafeHas1" $
+    unsafeHas "a" { a: 42 }
+  assert' "unsafeHas2" $
+    not $ unsafeHas "b" { a: 42 }
 
   let testBuilder = Builder.build (Builder.insert x 42
                                   >>> Builder.merge { y: true, z: "testing" }
