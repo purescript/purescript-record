@@ -24,3 +24,7 @@ exports.unsafeDeleteFn = function(label, rec) {
   }
   return copy;
 };
+
+exports.unsafeHasFn = function(label, rec) {
+  return {}.hasOwnProperty.call(rec, label);
+};
