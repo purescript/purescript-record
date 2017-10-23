@@ -3,9 +3,10 @@ module Test.Main where
 import Prelude
 
 import Control.Monad.Eff (Eff)
-import Data.Record (delete, get, insert, modify, set)
-import Data.Record.ST (pokeSTRecord, pureSTRecord, thawSTRecord)
+import Data.Record (delete, get, insert, modify, set, equal)
 import Data.Record.Builder as Builder
+import Data.Record.ST (pokeSTRecord, pureSTRecord, thawSTRecord)
+import Data.Record.Unsafe (unsafeHas)
 import Data.Symbol (SProxy(..))
 import Test.Assert (ASSERT, assert')
 
@@ -24,6 +25,14 @@ main = do
     get x (modify x (_ + 1) (set x 0 { x: 42 })) == 1
   assert' "delete, get" $
     get x (delete y { x: 42, y: 1337 }) == 42
+  assert' "equal" $
+    equal { a: 1, b: "b", c: true } { a: 1, b: "b", c: true }
+  assert' "equal2" $
+    not $ equal { a: 1, b: "b", c: true } { a: 1, b: "b", c: false }
+  assert' "unsafeHas1" $
+    unsafeHas "a" { a: 42 }
+  assert' "unsafeHas2" $
+    not $ unsafeHas "b" { a: 42 }
 
   let stTest1 = pureSTRecord do
         rec <- thawSTRecord { x: 41, y: "" }
