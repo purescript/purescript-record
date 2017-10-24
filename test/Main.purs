@@ -3,8 +3,9 @@ module Test.Main where
 import Prelude
 
 import Control.Monad.Eff (Eff)
-import Data.Record.Builder as Builder
 import Data.Record (delete, get, insert, modify, set, equal)
+import Data.Record.Builder as Builder
+import Data.Record.ST (pokeSTRecord, pureSTRecord, thawSTRecord)
 import Data.Record.Unsafe (unsafeHas)
 import Data.Symbol (SProxy(..))
 import Test.Assert (ASSERT, assert')
@@ -33,6 +34,15 @@ main = do
   assert' "unsafeHas2" $
     not $ unsafeHas "b" { a: 42 }
 
+  let stTest1 = pureSTRecord do
+        rec <- thawSTRecord { x: 41, y: "" }
+        pokeSTRecord x 42 rec
+        pokeSTRecord y "testing" rec
+        pure rec
+
+  assert' "pokeSTRecord" $
+    stTest1.x == 42 && stTest1.y == "testing"
+    
   let testBuilder = Builder.build (Builder.insert x 42
                                   >>> Builder.merge { y: true, z: "testing" }
                                   >>> Builder.delete y) {}
