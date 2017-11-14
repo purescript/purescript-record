@@ -26,6 +26,16 @@ exports.unsafeDelete = function(l) {
   };
 };
 
+exports.unsafeRename = function(l1) {
+  return function (l2) {
+    return function (rec) {
+      rec[l2] = rec[l1];
+      delete rec[l1];
+      return rec;
+    };
+  };
+};
+
 exports.unsafeMerge = function(r1) {
   return function(r2) {
     var copy = {};
