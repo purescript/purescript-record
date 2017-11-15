@@ -3,7 +3,7 @@ module Test.Main where
 import Prelude
 
 import Control.Monad.Eff (Eff)
-import Data.Record (delete, get, insert, modify, set, equal)
+import Data.Record (delete, equal, get, insert, modify, rename, set)
 import Data.Record.Builder as Builder
 import Data.Record.ST (pokeSTRecord, pureSTRecord, thawSTRecord)
 import Data.Record.Unsafe (unsafeHas)
@@ -14,6 +14,7 @@ main :: Eff (assert :: ASSERT) Unit
 main = do
   let x = SProxy :: SProxy "x"
       y = SProxy :: SProxy "y"
+      z = SProxy :: SProxy "z"
 
   assert' "insert, get" $
     get x (insert x 42 {}) == 42
@@ -25,6 +26,8 @@ main = do
     get x (modify x (_ + 1) (set x 0 { x: 42 })) == 1
   assert' "delete, get" $
     get x (delete y { x: 42, y: 1337 }) == 42
+  assert' "rename" $
+    get y (rename x y { x: 42 }) == 42
   assert' "equal" $
     equal { a: 1, b: "b", c: true } { a: 1, b: "b", c: true }
   assert' "equal2" $
@@ -42,10 +45,11 @@ main = do
 
   assert' "pokeSTRecord" $
     stTest1.x == 42 && stTest1.y == "testing"
-    
+
   let testBuilder = Builder.build (Builder.insert x 42
                                   >>> Builder.merge { y: true, z: "testing" }
-                                  >>> Builder.delete y) {}
+                                  >>> Builder.delete y
+                                  >>> Builder.rename z y) {}
 
   assert' "Data.Record.Builder" $
-    testBuilder.x == 42 && testBuilder.z == "testing"
+    testBuilder.x == 42 && testBuilder.y == "testing"

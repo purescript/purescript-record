@@ -3,6 +3,7 @@ module Data.Record.Builder
   , build
   , insert
   , delete
+  , rename
   , merge
   ) where
 
@@ -14,6 +15,7 @@ import Type.Row (class RowLacks)
 foreign import copyRecord :: forall r1. Record r1 -> Record r1
 foreign import unsafeInsert :: forall a r1 r2. String -> a -> Record r1 -> Record r2
 foreign import unsafeDelete :: forall r1 r2. String -> Record r1 -> Record r2
+foreign import unsafeRename :: forall r1 r2. String -> String -> Record r1 -> Record r2
 foreign import unsafeMerge :: forall r1 r2 r3. Record r1 -> Record r2 -> Record r3
 
 -- | A `Builder` can be used to `build` a record by incrementally adding
@@ -56,6 +58,19 @@ delete
    => SProxy l
    -> Builder (Record r2) (Record r1)
 delete l = Builder \r2 -> unsafeDelete (reflectSymbol l) r2
+
+-- | Build by renaming an existing field.
+rename :: forall l1 l2 a r1 r2 r3
+   . IsSymbol l1
+  => IsSymbol l2
+  => RowCons l1 a r2 r1
+  => RowLacks l1 r2
+  => RowCons l2 a r2 r3
+  => RowLacks l2 r2
+  => SProxy l1
+  -> SProxy l2
+  -> Builder (Record r1) (Record r3)
+rename l1 l2 = Builder \r1 -> unsafeRename (reflectSymbol l1) (reflectSymbol l2) r1
 
 -- | Build by merging existing fields from another record.
 merge

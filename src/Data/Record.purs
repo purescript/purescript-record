@@ -4,6 +4,7 @@ module Data.Record
   , modify
   , insert
   , delete
+  , rename
   , equal
   , class EqualFields
   , equalFields
@@ -113,6 +114,32 @@ delete
   -> Record r2
   -> Record r1
 delete l r = runFn2 unsafeDeleteFn (reflectSymbol l) r
+
+-- | Rename a property for a label which is specified using a value-level proxy for
+-- | a type-level string.
+-- |
+-- | Note that the type of the resulting row must _lack_ the specified property.
+-- | Since duplicate labels are allowed, this is checked with a type class constraint.
+-- |
+-- | For example:
+-- |
+-- | ```purescript
+-- | rename (SProxy :: SProxy "x") (SProxy :: SProxy "y")
+-- |   :: forall a r. RowLacks "x" r => RowLacks "y" r => { x :: a | r} -> { y :: a | r}
+-- | ```
+rename :: forall prev next ty input inter output
+   . IsSymbol prev
+  => IsSymbol next
+  => RowCons prev ty inter input
+  => RowLacks prev inter
+  => RowCons next ty inter output
+  => RowLacks next inter
+  => SProxy prev
+  -> SProxy next
+  -> Record input
+  -> Record output
+rename prev next record =
+  insert next (get prev record) (delete prev record :: Record inter)
 
 -- | Check two records of the same type for equality.
 equal
