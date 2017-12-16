@@ -4,7 +4,9 @@ module Data.Record.Homogeneous
   , mapValuesImpl
   ) where
 
-import Type.Row (class RowToList, Nil, RLProxy(..))
+import Data.Record (get, insert)
+import Data.Symbol (class IsSymbol, SProxy(..))
+import Type.Row (class RowLacks, class RowToList, Cons, Nil, RLProxy(..))
 import Type.Row.Homogeneous (class Homogeneous, class HomogeneousRowList)
 
 mapValues
@@ -22,8 +24,8 @@ class ( Homogeneous row fieldType
       )
    <= MapValues rl row row' fieldType fieldType'
     | rl -> row'
-    , row -> rl fieldType
-    , row'-> fieldType'
+    , row' -> fieldType'
+    , row -> fieldType
   where 
     mapValuesImpl
       :: RLProxy rl
@@ -31,13 +33,24 @@ class ( Homogeneous row fieldType
       -> Record row
       -> Record row'
 
-instance mapValuesNil
-  :: Homogeneous row fieldType => MapValues Nil row () fieldType fieldType' where
-  mapValuesImpl _ _ _ = {}
-  
+instance mapValuesCons ::
+  ( MapValues tail row tailRow' fieldType fieldType'
+  , Homogeneous row fieldType
+  , Homogeneous row' fieldType'
+  , IsSymbol name
+  , RowCons name fieldType tailRow row
+  , RowLacks name tailRow'
+  , RowCons name fieldType' tailRow' row'
+  ) => MapValues (Cons name fieldType tail) row row' fieldType fieldType'
+  where
+    mapValuesImpl _ f record = insert nameP value rest
+      where
+        nameP = SProxy :: SProxy name
+        value = f (get nameP record)
+        rest = mapValuesImpl (RLProxy :: RLProxy tail) f record
 
-{-
-mapRowListValues
-  ::
-   . HomogeneousRowList 
--}
+instance mapValuesNil
+  :: Homogeneous row fieldType
+  => MapValues Nil row () fieldType fieldType'
+  where
+    mapValuesImpl _ _ _ = {}

@@ -5,6 +5,7 @@ import Prelude
 import Control.Monad.Eff (Eff)
 import Data.Record (delete, equal, get, insert, modify, rename, set)
 import Data.Record.Builder as Builder
+import Data.Record.Homogeneous (mapValues)
 import Data.Record.ST (pokeSTRecord, pureSTRecord, thawSTRecord)
 import Data.Record.Unsafe (unsafeHas)
 import Data.Symbol (SProxy(..))
@@ -36,6 +37,8 @@ main = do
     unsafeHas "a" { a: 42 }
   assert' "unsafeHas2" $
     not $ unsafeHas "b" { a: 42 }
+  assert' "mapValues" $
+    mapValues (_ + 1) {a: 1, b: 2} `equal` {a: 2, b: 3}
 
   let stTest1 = pureSTRecord do
         rec <- thawSTRecord { x: 41, y: "" }
