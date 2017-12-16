@@ -4,7 +4,9 @@ module Data.Record.Homogeneous
   , mapValuesImpl
   ) where
 
-import Data.Record (get, insert)
+import Control.Category (id, (<<<))
+import Data.Record (get)
+import Data.Record.Builder (Builder, build, insert)
 import Data.Symbol (class IsSymbol, SProxy(..))
 import Type.Row (class RowLacks, class RowToList, Cons, Nil, RLProxy(..))
 import Type.Row.Homogeneous (class Homogeneous, class HomogeneousRowList)
@@ -16,7 +18,7 @@ mapValues
   => (t -> t')
   -> Record r
   -> Record r'
-mapValues f r = mapValuesImpl (RLProxy :: RLProxy fields) f r
+mapValues f r = build (mapValuesImpl (RLProxy :: RLProxy fields) f r) {}
 
 class ( Homogeneous row fieldType
       , HomogeneousRowList rl fieldType
@@ -31,7 +33,7 @@ class ( Homogeneous row fieldType
       :: RLProxy rl
       -> (fieldType -> fieldType')
       -> Record row
-      -> Record row'
+      -> Builder {} (Record row')
 
 instance mapValuesCons ::
   ( MapValues tail row tailRow' fieldType fieldType'
@@ -43,7 +45,7 @@ instance mapValuesCons ::
   , RowCons name fieldType' tailRow' row'
   ) => MapValues (Cons name fieldType tail) row row' fieldType fieldType'
   where
-    mapValuesImpl _ f record = insert nameP value rest
+    mapValuesImpl _ f record = insert nameP value <<< rest
       where
         nameP = SProxy :: SProxy name
         value = f (get nameP record)
@@ -53,4 +55,4 @@ instance mapValuesNil
   :: Homogeneous row fieldType
   => MapValues Nil row () fieldType fieldType'
   where
-    mapValuesImpl _ _ _ = {}
+    mapValuesImpl _ _ _ = id
