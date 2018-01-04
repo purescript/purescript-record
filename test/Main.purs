@@ -3,7 +3,7 @@ module Test.Main where
 import Prelude
 
 import Control.Monad.Eff (Eff)
-import Data.Record (delete, equal, get, insert, modify, rename, set)
+import Data.Record (delete, equal, get, insert, modify, rename, rsequence, set)
 import Data.Record.Builder as Builder
 import Data.Record.ST (pokeSTRecord, pureSTRecord, thawSTRecord)
 import Data.Record.Unsafe (unsafeHas)
@@ -53,3 +53,9 @@ main = do
 
   assert' "Data.Record.Builder" $
     testBuilder.x == 42 && testBuilder.y == "testing"
+
+  let testRsequence = rsequence { a: [1,2], b: [3,4] }
+
+  assert' "rsequence" $
+    map _.a testRsequence == [1,1,2,2] &&
+    map _.b testRsequence == [3,4,3,4]

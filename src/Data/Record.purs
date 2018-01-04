@@ -8,12 +8,16 @@ module Data.Record
   , equal
   , class EqualFields
   , equalFields
+  , class SequenceRecord
+  , rsequence
+  , rsequenceImpl
   ) where
 
 import Data.Function.Uncurried (runFn2, runFn3)
 import Data.Record.Unsafe (unsafeGetFn, unsafeSetFn, unsafeDeleteFn)
 import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
-import Prelude (class Eq, (&&), (==))
+import Prelude (class Applicative, class Eq, pure, (&&), (<$>), (<*>), (==))
+import Type.Equality (class TypeEquals, to)
 import Type.Row (class RowLacks, class RowToList, Cons, Nil, RLProxy(RLProxy), kind RowList)
 
 -- | Get a property for a label which is specified using a value-level proxy for
@@ -168,3 +172,53 @@ instance equalFieldsCons
 
 instance equalFieldsNil :: EqualFields Nil row where
   equalFields _ _ _ = true
+
+-- | A function similar to `Data.Traversable.sequence`, but operating on
+-- | heterogenous records instead of homogenous containers.
+-- |
+-- | `rsequence` runs the actions contained in record fields, and accumulates
+-- | the results in a record. The actions are sequenced in the order of sorted
+-- | field names (the order in which `RowToList` returns fields).
+-- |
+-- | Example types that match the general type of `rsequence`:
+-- |
+-- | - `rsequence :: { a :: Maybe Int, b :: Maybe Int } -> Maybe { a :: Int, b :: Int }`
+-- | - `rsequence :: { a :: Array Int, b :: Array Int } -> Array { a :: Int, b :: Int }`
+rsequence
+  :: forall f fr frs r
+   . RowToList fr frs
+  => SequenceRecord f frs fr r
+  => Record fr
+  -> f (Record r)
+rsequence = rsequenceImpl (RLProxy :: RLProxy frs)
+
+class SequenceRecord (f :: Type -> Type) (frs :: RowList) (fr :: # Type) (r :: # Type)
+  | frs -> r where
+  rsequenceImpl :: RLProxy frs -> Record fr -> f (Record r)
+
+instance sequenceRecordCons
+  ::
+  ( IsSymbol name
+  , Applicative f
+  , RowCons name ty tailRow r
+  , RowLacks name tailRow
+  , RowCons name (f ty) trash fr
+  , SequenceRecord f tail fr tailRow
+  ) => SequenceRecord f (Cons name (f ty) tail) fr r where
+  rsequenceImpl _ fr = insert nameP <$> value <*> rest
+    where
+      nameP :: SProxy name
+      nameP = SProxy
+
+      value :: f ty
+      value = get (SProxy :: SProxy name) fr
+      
+      rest :: f (Record tailRow)
+      rest = rsequenceImpl (RLProxy :: RLProxy tail) fr
+
+instance sequenceRecordNil
+  ::
+  ( Applicative f
+  , TypeEquals {} (Record empty)
+  ) => SequenceRecord f Nil fr empty where
+  rsequenceImpl _ _ = pure (to {})
