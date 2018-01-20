@@ -11,6 +11,7 @@ import Prelude
 
 import Data.Symbol (class IsSymbol, SProxy, reflectSymbol)
 import Type.Row (class RowLacks)
+import Prim.Row (class Cons, class Union)
 
 foreign import copyRecord :: forall r1. Record r1 -> Record r1
 foreign import unsafeInsert :: forall a r1 r2. String -> a -> Record r1 -> Record r2
@@ -41,7 +42,7 @@ derive newtype instance categoryBuilder :: Category Builder
 -- | Build by inserting a new field.
 insert
   :: forall l a r1 r2
-   . RowCons l a r1 r2
+   . Cons l a r1 r2
   => RowLacks l r1
   => IsSymbol l
   => SProxy l
@@ -54,7 +55,7 @@ delete
   :: forall l a r1 r2
    . IsSymbol l
    => RowLacks l r1
-   => RowCons l a r1 r2
+   => Cons l a r1 r2
    => SProxy l
    -> Builder (Record r2) (Record r1)
 delete l = Builder \r2 -> unsafeDelete (reflectSymbol l) r2
@@ -63,9 +64,9 @@ delete l = Builder \r2 -> unsafeDelete (reflectSymbol l) r2
 rename :: forall l1 l2 a r1 r2 r3
    . IsSymbol l1
   => IsSymbol l2
-  => RowCons l1 a r2 r1
+  => Cons l1 a r2 r1
   => RowLacks l1 r2
-  => RowCons l2 a r2 r3
+  => Cons l2 a r2 r3
   => RowLacks l2 r2
   => SProxy l1
   -> SProxy l2
