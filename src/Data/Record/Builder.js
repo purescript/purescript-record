@@ -19,6 +19,15 @@ exports.unsafeInsert = function(l) {
   };
 };
 
+exports.unsafeModify = function(l) {
+  return function (f) {
+    return function(rec) {
+      rec[l] = f(rec[l]);
+      return rec;
+    };
+  };
+};
+
 exports.unsafeDelete = function(l) {
   return function(rec) {
     delete rec[l];

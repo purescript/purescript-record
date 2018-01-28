@@ -49,7 +49,8 @@ main = do
   let testBuilder = Builder.build (Builder.insert x 42
                                   >>> Builder.merge { y: true, z: "testing" }
                                   >>> Builder.delete y
+                                  >>> Builder.modify x show
                                   >>> Builder.rename z y) {}
 
   assert' "Data.Record.Builder" $
-    testBuilder.x == 42 && testBuilder.y == "testing"
+    testBuilder.x == "42" && testBuilder.y == "testing"
