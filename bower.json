@@ -19,7 +19,7 @@
   "dependencies": {
     "purescript-symbols": "^3.0.0",
     "purescript-functions": "^3.0.0",
-    "purescript-typelevel-prelude": "^2.3.1",
+    "purescript-typelevel-prelude": "matthewleon/purescript-typelevel-prelude#homogeneous-sp",
     "purescript-st": "^3.0.0"
   },
   "devDependencies": {
