@@ -13,6 +13,7 @@ import Prelude
 import Control.Monad.Eff (Eff, runPure)
 import Control.Monad.ST (ST)
 import Data.Symbol (class IsSymbol, SProxy, reflectSymbol)
+import Prim.Row (class Cons)
 
 -- | A value of type `STRecord h r` represents a mutable record with fields `r`,
 -- | belonging to the state thread `h`.
@@ -44,7 +45,7 @@ foreign import unsafePeekSTRecord
 -- | type-level representative for the label which should be read.
 peekSTRecord
   :: forall l h a r r1 eff
-   . RowCons l a r1 r
+   . Cons l a r1 r
   => IsSymbol l
   => SProxy l
   -> STRecord h r
@@ -62,7 +63,7 @@ foreign import unsafePokeSTRecord
 -- | which should be updated.
 pokeSTRecord
   :: forall l h a r r1 eff
-   . RowCons l a r1 r
+   . Cons l a r1 r
   => IsSymbol l
   => SProxy l
   -> a
