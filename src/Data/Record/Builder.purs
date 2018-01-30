@@ -6,6 +6,7 @@ module Data.Record.Builder
   , delete
   , rename
   , merge
+  , diff
   ) where
 
 import Prelude
@@ -19,6 +20,7 @@ foreign import unsafeModify :: forall a b r1 r2. String -> (a -> b) -> Record r1
 foreign import unsafeDelete :: forall r1 r2. String -> Record r1 -> Record r2
 foreign import unsafeRename :: forall r1 r2. String -> String -> Record r1 -> Record r2
 foreign import unsafeMerge :: forall r1 r2 r3. Record r1 -> Record r2 -> Record r3
+foreign import unsafeDiff :: forall r1 r2 r3. Record r1 -> Record r2 -> Record r3
 
 -- | A `Builder` can be used to `build` a record by incrementally adding
 -- | fields in-place, instead of using `insert` and repeatedly generating new
@@ -92,3 +94,17 @@ merge
   => Record r2
   -> Builder (Record r1) (Record r3)
 merge r2 = Builder \r1 -> unsafeMerge r1 r2
+
+-- | Build by diffing another record. If a key with the same value exists in
+-- | that record, the key is removed.
+-- |
+-- | For example:
+-- |
+-- | ```purescript
+-- | build (difference { x: 42 }) { x: 42, y: "test" } :: { y :: String }
+-- | ```
+diff
+  :: forall r1 r2 r3
+   . Record r2
+  -> Builder (Record r1) (Record r3)
+diff r2 = Builder \r1 -> unsafeDiff r1 r2

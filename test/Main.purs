@@ -54,3 +54,11 @@ main = do
 
   assert' "Data.Record.Builder" $
     testBuilder.x == "42" && testBuilder.y == "testing"
+
+  let testDiff =
+        Builder.build (Builder.diff testBuilder) { x: "42", y: "test", z: true }
+
+  assert' "Data.Record.Builder.difference 1" $
+    testDiff.y == "test" && testDiff.z
+  assert' "Data.Record.Builder.difference 2" $
+    not $ unsafeHas "x" testDiff

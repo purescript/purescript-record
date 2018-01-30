@@ -61,3 +61,16 @@ exports.unsafeMerge = function(r1) {
     return copy;
   };
 };
+
+exports.unsafeDiff = function(r1) {
+  return function(r2) {
+    var copy = {};
+    for (var key in r1) {
+      if ({}.hasOwnProperty.call(r1, key) && r1[key] !== r2[key]) {
+        copy[key] = r1[key];
+      }
+    }
+    return copy;
+  };
+};
+
