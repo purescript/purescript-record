@@ -20,7 +20,8 @@
     "purescript-symbols": "^3.0.0",
     "purescript-functions": "^3.0.0",
     "purescript-typelevel-prelude": "^2.3.1",
-    "purescript-st": "^3.0.0"
+    "purescript-st": "^3.0.0",
+    "purescript-profunctor": "^3.2.0"
   },
   "devDependencies": {
     "purescript-assert": "^3.0.0"

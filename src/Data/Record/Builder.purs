@@ -9,6 +9,7 @@ module Data.Record.Builder
 
 import Prelude
 
+import Data.Profunctor (class Profunctor)
 import Data.Symbol (class IsSymbol, SProxy, reflectSymbol)
 import Type.Row (class RowLacks)
 
@@ -37,6 +38,7 @@ build (Builder b) r1 = b (copyRecord r1)
 
 derive newtype instance semigroupoidBuilder :: Semigroupoid Builder
 derive newtype instance categoryBuilder :: Category Builder
+derive newtype instance profunctorBuilder :: Profunctor Builder
 
 -- | Build by inserting a new field.
 insert
