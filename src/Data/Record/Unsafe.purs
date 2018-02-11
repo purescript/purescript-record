@@ -5,6 +5,7 @@ module Data.Record.Unsafe
   , unsafeHasFn
   , unsafeGet
   , unsafeSet
+  , unsafeModify
   , unsafeDelete
   , unsafeHas
   ) where
@@ -13,6 +14,9 @@ import Data.Function.Uncurried (Fn2, Fn3, runFn2, runFn3)
 
 foreign import unsafeGetFn :: forall r a. Fn2 String (Record r) a
 foreign import unsafeSetFn :: forall r1 r2 a. Fn3 String a (Record r1) (Record r2)
+foreign import unsafeModifyFn
+  :: forall r1 r2 a b
+   . Fn3 String (a -> b) (Record r1) (Record r2)
 foreign import unsafeDeleteFn :: forall r1 r2. Fn2 String (Record r1) (Record r2)
 foreign import unsafeHasFn :: forall r1. Fn2 String (Record r1) Boolean
 
@@ -21,6 +25,9 @@ unsafeGet = runFn2 unsafeGetFn
 
 unsafeSet :: forall r1 r2 a. String -> a -> Record r1 -> Record r2
 unsafeSet = runFn3 unsafeSetFn
+
+unsafeModify :: forall r1 r2 a b. String -> (a -> b) -> Record r1 -> Record r2
+unsafeModify = runFn3 unsafeModifyFn
 
 unsafeDelete :: forall r1 r2. String -> Record r1 -> Record r2
 unsafeDelete = runFn2 unsafeDeleteFn
