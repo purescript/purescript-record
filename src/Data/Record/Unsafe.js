@@ -15,6 +15,17 @@ exports.unsafeSetFn = function(label, value, rec) {
   return copy;
 };
 
+exports.unsafeModifyFn = function(label, f, rec) {
+  var copy = {};
+  for (var key in rec) {
+    if ({}.hasOwnProperty.call(rec, key)) {
+      copy[key] = rec[key];
+    }
+  }
+  copy[label] = f(copy[label]);
+  return copy;
+};
+
 exports.unsafeDeleteFn = function(label, rec) {
   var copy = {};
   for (var key in rec) {
