@@ -3,9 +3,10 @@ module Test.Main where
 import Prelude
 
 import Control.Monad.Eff (Eff)
+import Control.Monad.ST (pureST)
 import Data.Record (delete, equal, get, insert, modify, rename, set)
 import Data.Record.Builder as Builder
-import Data.Record.ST (pokeSTRecord, pureSTRecord, thawSTRecord)
+import Data.Record.ST (pokeSTRecord, pureSTRecord, thawSTRecord, unsafeFreeze, unsafeThaw)
 import Data.Record.Unsafe (unsafeHas)
 import Data.Symbol (SProxy(..))
 import Test.Assert (ASSERT, assert')
@@ -43,8 +44,15 @@ main = do
         pokeSTRecord y "testing" rec
         pure rec
 
+  let stTest2 = pureST do
+        rec <- unsafeThaw { x: 41, y: "" }
+        pokeSTRecord x 42 rec
+        pokeSTRecord y "testing" rec
+        unsafeFreeze rec
+
   assert' "pokeSTRecord" $
     stTest1.x == 42 && stTest1.y == "testing"
+    && stTest2.x == 42 && stTest2.y == "testing"
 
   let testBuilder = Builder.build (Builder.insert x 42
                                   >>> Builder.merge { y: true, z: "testing" }
