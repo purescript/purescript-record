@@ -5,7 +5,7 @@ import Prelude
 import Control.Monad.Eff (Eff)
 import Data.Record (delete, equal, get, insert, modify, rename, set)
 import Data.Record.Builder as Builder
-import Data.Record.ST (pokeSTRecord, pureSTRecord, thawSTRecord)
+import Data.Record.ST (poke, pureSTRecord, thaw)
 import Data.Record.Unsafe (unsafeHas)
 import Data.Symbol (SProxy(..))
 import Test.Assert (ASSERT, assert')
@@ -38,12 +38,12 @@ main = do
     not $ unsafeHas "b" { a: 42 }
 
   let stTest1 = pureSTRecord do
-        rec <- thawSTRecord { x: 41, y: "" }
-        pokeSTRecord x 42 rec
-        pokeSTRecord y "testing" rec
+        rec <- thaw { x: 41, y: "" }
+        poke x 42 rec
+        poke y "testing" rec
         pure rec
 
-  assert' "pokeSTRecord" $
+  assert' "poke" $
     stTest1.x == 42 && stTest1.y == "testing"
 
   let testBuilder = Builder.build (Builder.insert x 42
