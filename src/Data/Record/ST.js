@@ -45,3 +45,13 @@ exports.unsafePokeSTRecord = function(l) {
     };
   };
 };
+
+exports.unsafeModify = function(l) {
+  return function(f) {
+    return function(rec) {
+      return function() {
+        rec[l] = f(rec[l]);
+      };
+    };
+  };
+};

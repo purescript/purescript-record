@@ -6,6 +6,7 @@ import Control.Monad.Eff (Eff)
 import Data.Record (delete, equal, get, insert, modify, rename, set)
 import Data.Record.Builder as Builder
 import Data.Record.ST (pokeSTRecord, pureSTRecord, thawSTRecord)
+import Data.Record.ST as ST
 import Data.Record.Unsafe (unsafeHas)
 import Data.Symbol (SProxy(..))
 import Test.Assert (ASSERT, assert')
@@ -42,9 +43,14 @@ main = do
         pokeSTRecord x 42 rec
         pokeSTRecord y "testing" rec
         pure rec
+      stTest2 = pureSTRecord do
+        rec <- thawSTRecord { x: 41 }
+        ST.modify x (_ + 1) rec
+        pure rec
 
   assert' "pokeSTRecord" $
     stTest1.x == 42 && stTest1.y == "testing"
+  assert' "ST.modify" $ stTest2.x == 42
 
   let testBuilder = Builder.build (Builder.insert x 42
                                   >>> Builder.merge { y: true, z: "testing" }

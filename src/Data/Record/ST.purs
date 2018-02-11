@@ -4,6 +4,7 @@ module Data.Record.ST
   , thawSTRecord
   , peekSTRecord
   , pokeSTRecord
+  , modify
   , runSTRecord
   , pureSTRecord
   ) where
@@ -69,3 +70,23 @@ pokeSTRecord
   -> STRecord h r
   -> Eff (st :: ST h | eff) Unit
 pokeSTRecord l = unsafePokeSTRecord (reflectSymbol l)
+
+foreign import unsafeModify
+  :: forall a r h eff
+   . String
+  -> (a -> a)
+  -> STRecord h r
+  -> Eff (st :: ST h | eff) Unit
+
+-- | Modify a record in place,
+-- | by providing a type-level representative for the label to update
+-- | and a function to update it.
+modify
+  :: forall l h a r r1 eff
+   . RowCons l a r1 r
+  => IsSymbol l
+  => SProxy l
+  -> (a -> a)
+  -> STRecord h r
+  -> Eff (st :: ST h | eff) Unit
+modify l = unsafeModify (reflectSymbol l)
