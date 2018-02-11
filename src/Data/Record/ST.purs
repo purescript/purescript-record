@@ -2,6 +2,8 @@ module Data.Record.ST
   ( STRecord
   , freezeSTRecord
   , thawSTRecord
+  , unsafeFreeze
+  , unsafeThaw
   , peekSTRecord
   , pokeSTRecord
   , runSTRecord
@@ -13,6 +15,7 @@ import Prelude
 import Control.Monad.Eff (Eff, runPure)
 import Control.Monad.ST (ST)
 import Data.Symbol (class IsSymbol, SProxy, reflectSymbol)
+import Unsafe.Coerce (unsafeCoerce)
 
 -- | A value of type `STRecord h r` represents a mutable record with fields `r`,
 -- | belonging to the state thread `h`.
@@ -25,6 +28,16 @@ foreign import freezeSTRecord :: forall h r eff. STRecord h r -> Eff (st :: ST h
 
 -- | Thaw an immutable record, creating a copy.
 foreign import thawSTRecord :: forall h r eff. Record r -> Eff (st :: ST h | eff) (STRecord h r)
+
+-- | Freeze a mutable record, without copying.
+-- | The mutable record must not be mutated afterward.
+unsafeFreeze :: forall h r eff. STRecord h r -> Eff (st :: ST h | eff) (Record r)
+unsafeFreeze = pure <<< (unsafeCoerce :: STRecord h r -> Record r)
+
+-- | Thaw an immutable record, without copying.
+-- | The input record must not be used afterward.
+unsafeThaw :: forall h r eff. Record r -> Eff (st :: ST h | eff) (STRecord h r)
+unsafeThaw = pure <<< (unsafeCoerce :: Record r -> STRecord h r)
 
 -- | Run an ST computation safely, constructing a record.
 foreign import runSTRecord :: forall r eff. (forall h. Eff (st :: ST h | eff) (STRecord h r)) -> Eff eff (Record r)
