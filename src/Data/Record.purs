@@ -5,16 +5,17 @@ module Data.Record
   , insert
   , delete
   , rename
+  , merge
   , equal
   , class EqualFields
   , equalFields
   ) where
 
 import Data.Function.Uncurried (runFn2, runFn3)
-import Data.Record.Unsafe (unsafeGetFn, unsafeSetFn, unsafeDeleteFn)
+import Data.Record.Unsafe (unsafeGetFn, unsafeSetFn, unsafeDeleteFn, unsafeMerge)
 import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
 import Prelude (class Eq, (&&), (==))
-import Type.Row (class RowLacks, class RowToList, Cons, Nil, RLProxy(RLProxy), kind RowList)
+import Type.Row (class ListToRow, class RowLacks, class RowListNub, class RowToList, Cons, Nil, RLProxy(RLProxy), kind RowList)
 
 -- | Get a property for a label which is specified using a value-level proxy for
 -- | a type-level string.
@@ -140,6 +141,44 @@ rename :: forall prev next ty input inter output
   -> Record output
 rename prev next record =
   insert next (get prev record) (delete prev record :: Record inter)
+
+-- | Merge two records, keeping overlapping fields from the left.
+-- |
+-- | For example:
+-- |
+-- | ```purescript
+-- | merge { a: 5, b: true } { a: false, c: "foo" } == { a: 5, b: true, c: "foo" }
+-- | ```
+merge :: forall l r u ul ul' u'
+   . Union l r u
+  => RowToList u ul
+  => RowListNub ul ul'
+  => ListToRow ul' u'
+  => Record l
+  -> Record r
+  -> Record u'
+merge = unsafeMerge
+
+-- | Merge two disjoint records (containing different labels). This helps infer
+-- | types for the input records based on the output records, as `merge` only
+-- | will infer the output based upon the input.
+-- |
+-- | For example, hole `?help` is inferred to have type ``{ b :: Int }` here:
+-- |
+-- | ```purescript
+-- | merge' { a: 5 } ?help :: { a :: Int, b :: Int }
+-- | ```
+merge' :: forall l r u ul
+   . Union l r u
+  => RowToList u ul
+  -- saying two records are disjoint is equivalent to saying their union
+  -- contains no duplicate labels
+  => RowListNub ul ul
+  => ListToRow ul u
+  => Record l
+  -> Record r
+  -> Record u
+merge' = merge
 
 -- | Check two records of the same type for equality.
 equal
