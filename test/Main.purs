@@ -3,7 +3,7 @@ module Test.Main where
 import Prelude
 
 import Control.Monad.Eff (Eff)
-import Data.Record (delete, equal, get, insert, modify, rename, set)
+import Data.Record (delete, equal, get, insert, merge, modify, rename, set)
 import Data.Record.Builder as Builder
 import Data.Record.ST (pokeSTRecord, pureSTRecord, thawSTRecord)
 import Data.Record.Unsafe (unsafeHas)
@@ -36,6 +36,8 @@ main = do
     unsafeHas "a" { a: 42 }
   assert' "unsafeHas2" $
     not $ unsafeHas "b" { a: 42 }
+  assert' "merge" $
+    equal { a: 42, b: true, c: "foo" } $ merge { a: 42, b: true } { a: false, c: "foo" }
 
   let stTest1 = pureSTRecord do
         rec <- thawSTRecord { x: 41, y: "" }
@@ -46,11 +48,12 @@ main = do
   assert' "pokeSTRecord" $
     stTest1.x == 42 && stTest1.y == "testing"
 
-  let testBuilder = Builder.build (Builder.insert x 42
+  let testBuilder :: { x :: String, y :: String }
+      testBuilder = Builder.build (Builder.insert x 42
                                   >>> Builder.merge { y: true, z: "testing" }
                                   >>> Builder.delete y
                                   >>> Builder.modify x show
-                                  >>> Builder.rename z y) {}
+                                  >>> Builder.rename z y) { z: false }
 
   assert' "Data.Record.Builder" $
     testBuilder.x == "42" && testBuilder.y == "testing"
