@@ -42,4 +42,4 @@ exports.unsafeMergeFn = function(r1, r2) {
     }
   }
   return r;
-}
+};
