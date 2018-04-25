@@ -14,7 +14,7 @@ import Data.Function.Uncurried (runFn2, runFn3)
 import Data.Record.Unsafe (unsafeGetFn, unsafeSetFn, unsafeDeleteFn)
 import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
 import Prelude (class Eq, (&&), (==))
-import Type.Row (class RowLacks, class RowToList, Cons, Nil, RLProxy(RLProxy), kind RowList)
+import Type.Row (class Lacks, class Cons, class RowToList, Cons, Nil, RLProxy(RLProxy), kind RowList)
 
 -- | Get a property for a label which is specified using a value-level proxy for
 -- | a type-level string.
@@ -27,7 +27,7 @@ import Type.Row (class RowLacks, class RowToList, Cons, Nil, RLProxy(RLProxy), k
 get
   :: forall r r' l a
    . IsSymbol l
-  => RowCons l a r' r
+  => Cons l a r' r
   => SProxy l
   -> Record r
   -> a
@@ -45,8 +45,8 @@ get l r = runFn2 unsafeGetFn (reflectSymbol l) r
 set
   :: forall r1 r2 r l a b
    . IsSymbol l
-  => RowCons l a r r1
-  => RowCons l b r r2
+  => Cons l a r r1
+  => Cons l b r r2
   => SProxy l
   -> b
   -> Record r1
@@ -65,8 +65,8 @@ set l b r = runFn3 unsafeSetFn (reflectSymbol l) b r
 modify
   :: forall r1 r2 r l a b
    . IsSymbol l
-  => RowCons l a r r1
-  => RowCons l b r r2
+  => Cons l a r r1
+  => Cons l b r r2
   => SProxy l
   -> (a -> b)
   -> Record r1
@@ -80,13 +80,13 @@ modify l f r = set l (f (get l r)) r
 -- |
 -- | ```purescript
 -- | insert (SProxy :: SProxy "x")
--- |   :: forall r a. RowLacks "x" r => a -> { | r } -> { x :: a | r }
+-- |   :: forall r a. Lacks "x" r => a -> { | r } -> { x :: a | r }
 -- | ```
 insert
   :: forall r1 r2 l a
    . IsSymbol l
-  => RowLacks l r1
-  => RowCons l a r1 r2
+  => Lacks l r1
+  => Cons l a r1 r2
   => SProxy l
   -> a
   -> Record r1
@@ -103,13 +103,13 @@ insert l a r = runFn3 unsafeSetFn (reflectSymbol l) a r
 -- |
 -- | ```purescript
 -- | delete (SProxy :: SProxy "x")
--- |   :: forall r a. RowLacks "x" r => { x :: a | r } -> { | r }
+-- |   :: forall r a. Lacks "x" r => { x :: a | r } -> { | r }
 -- | ```
 delete
   :: forall r1 r2 l a
    . IsSymbol l
-  => RowLacks l r1
-  => RowCons l a r1 r2
+  => Lacks l r1
+  => Cons l a r1 r2
   => SProxy l
   -> Record r2
   -> Record r1
@@ -125,15 +125,15 @@ delete l r = runFn2 unsafeDeleteFn (reflectSymbol l) r
 -- |
 -- | ```purescript
 -- | rename (SProxy :: SProxy "x") (SProxy :: SProxy "y")
--- |   :: forall a r. RowLacks "x" r => RowLacks "y" r => { x :: a | r} -> { y :: a | r}
+-- |   :: forall a r. Lacks "x" r => Lacks "y" r => { x :: a | r} -> { y :: a | r}
 -- | ```
 rename :: forall prev next ty input inter output
    . IsSymbol prev
   => IsSymbol next
-  => RowCons prev ty inter input
-  => RowLacks prev inter
-  => RowCons next ty inter output
-  => RowLacks next inter
+  => Cons prev ty inter input
+  => Lacks prev inter
+  => Cons next ty inter output
+  => Lacks next inter
   => SProxy prev
   -> SProxy next
   -> Record input
@@ -158,7 +158,7 @@ instance equalFieldsCons
   ::
   ( IsSymbol name
   , Eq ty
-  , RowCons name ty tailRow row
+  , Cons name ty tailRow row
   , EqualFields tail row
   ) => EqualFields (Cons name ty tail) row where
   equalFields _ a b = get' a == get' b && equalRest a b
