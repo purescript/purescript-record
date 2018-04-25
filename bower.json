@@ -17,12 +17,11 @@
     "package.json"
   ],
   "dependencies": {
-    "purescript-symbols": "^3.0.0",
-    "purescript-functions": "^3.0.0",
-    "purescript-typelevel-prelude": "^2.3.1",
-    "purescript-st": "^3.0.0"
+    "purescript-functions": "#compiler/0.12",
+    "purescript-typelevel-prelude": "#compiler/0.12",
+    "purescript-st": "#compiler/0.12"
   },
   "devDependencies": {
-    "purescript-assert": "^3.0.0"
+    "purescript-assert": "#compiler/0.12"
   }
 }
