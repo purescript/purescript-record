@@ -6,15 +6,19 @@ module Data.Record
   , delete
   , rename
   , equal
+  , merge
+  , union
+  , nub
   , class EqualFields
   , equalFields
   ) where
 
 import Data.Function.Uncurried (runFn2, runFn3)
-import Data.Record.Unsafe (unsafeGetFn, unsafeSetFn, unsafeDeleteFn)
+import Data.Record.Unsafe (unsafeGetFn, unsafeSetFn, unsafeDeleteFn, unsafeUnionFn)
 import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
 import Prelude (class Eq, (&&), (==))
-import Type.Row (class Lacks, class Cons, class RowToList, Cons, Nil, RLProxy(RLProxy), kind RowList)
+import Type.Row (class Lacks, class Cons, class Nub, class RowToList, class Union, Cons, Nil, RLProxy(RLProxy), kind RowList)
+import Unsafe.Coerce (unsafeCoerce)
 
 -- | Get a property for a label which is specified using a value-level proxy for
 -- | a type-level string.
@@ -140,6 +144,51 @@ rename :: forall prev next ty input inter output
   -> Record output
 rename prev next record =
   insert next (get prev record) (delete prev record :: Record inter)
+
+-- | Merges two records with the first record's labels taking precedence in the
+-- | case of overlaps.
+-- |
+-- | For example:
+-- |
+-- | ```purescript
+-- | merge { x: 1, y: "y" } { y: 2, z: true }
+-- |  :: { x :: Int, y :: String, z :: Boolean }
+-- | ```
+merge
+  :: forall r1 r2 r3 r4
+   . Union r1 r2 r3
+  => Nub r3 r4
+  => Record r1
+  -> Record r2
+  -> Record r4
+merge l r = runFn2 unsafeUnionFn l r
+
+-- | Merges two records with the first record's labels taking precedence in the
+-- | case of overlaps. Unlike `merge`, this does not remove duplicate labels
+-- | from the resulting record type. This can result in better inference for
+-- | some pipelines, deferring the need for a `Nub` constraint.
+-- |
+-- | For example:
+-- |
+-- | ```purescript
+-- | union { x: 1, y: "y" } { y: 2, z: true }
+-- |  :: { x :: Int, y :: String, y :: Int, z :: Boolean }
+-- | ```
+union
+  :: forall r1 r2 r3
+   . Union r1 r2 r3
+  => Record r1
+  -> Record r2
+  -> Record r3
+union l r = runFn2 unsafeUnionFn l r
+
+-- | A coercion which removes duplicate labels from a record's type.
+nub
+  :: forall r1 r2
+   . Nub r1 r2
+  => Record r1
+  -> Record r2
+nub = unsafeCoerce
 
 -- | Check two records of the same type for equality.
 equal

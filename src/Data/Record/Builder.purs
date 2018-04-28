@@ -6,19 +6,23 @@ module Data.Record.Builder
   , delete
   , rename
   , merge
+  , union
+  , nub
   ) where
 
 import Prelude
 
+import Data.Function.Uncurried (runFn2)
+import Data.Record.Unsafe (unsafeUnionFn)
 import Data.Symbol (class IsSymbol, SProxy, reflectSymbol)
 import Type.Row as Row
+import Unsafe.Coerce (unsafeCoerce)
 
 foreign import copyRecord :: forall r1. Record r1 -> Record r1
 foreign import unsafeInsert :: forall a r1 r2. String -> a -> Record r1 -> Record r2
 foreign import unsafeModify :: forall a b r1 r2. String -> (a -> b) -> Record r1 -> Record r2
 foreign import unsafeDelete :: forall r1 r2. String -> Record r1 -> Record r2
 foreign import unsafeRename :: forall r1 r2. String -> String -> Record r1 -> Record r2
-foreign import unsafeMerge :: forall r1 r2 r3. Record r1 -> Record r2 -> Record r3
 
 -- | A `Builder` can be used to `build` a record by incrementally adding
 -- | fields in-place, instead of using `insert` and repeatedly generating new
@@ -87,8 +91,27 @@ rename l1 l2 = Builder \r1 -> unsafeRename (reflectSymbol l1) (reflectSymbol l2)
 
 -- | Build by merging existing fields from another record.
 merge
+  :: forall r1 r2 r3 r4
+   . Row.Union r1 r2 r3
+  => Row.Nub r3 r4
+  => Record r2
+  -> Builder (Record r1) (Record r4)
+merge r2 = Builder \r1 -> runFn2 unsafeUnionFn r1 r2
+
+-- | Build by merging existing fields from another record. Unlike `merge`,
+-- | this does not remove duplicate labels from the resulting record type.
+-- | This can result in better inference for some pipelines, deferring the
+-- | need for a `Nub` constraint.
+union
   :: forall r1 r2 r3
    . Row.Union r1 r2 r3
   => Record r2
   -> Builder (Record r1) (Record r3)
-merge r2 = Builder \r1 -> unsafeMerge r1 r2
+union r2 = Builder \r1 -> runFn2 unsafeUnionFn r1 r2
+
+-- | A coercion which removes duplicate labels from a record's type.
+nub
+  :: forall r1 r2
+   . Row.Nub r1 r2
+  => Builder (Record r1) (Record r2)
+nub = Builder unsafeCoerce
