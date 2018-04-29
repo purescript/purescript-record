@@ -7,6 +7,7 @@ module Data.Record.Builder
   , rename
   , merge
   , union
+  , disjointUnion
   , nub
   ) where
 
@@ -108,6 +109,15 @@ union
   => Record r2
   -> Builder (Record r1) (Record r3)
 union r2 = Builder \r1 -> runFn2 unsafeUnionFn r1 r2
+
+-- | Build by merging some disjoint set of fields from another record.
+disjointUnion
+  :: forall r1 r2 r3
+   . Row.Union r1 r2 r3
+  => Row.Nub r3 r3
+  => Record r1
+  -> Builder (Record r2) (Record r3)
+disjointUnion r1 = Builder \r2 -> runFn2 unsafeUnionFn r1 r2
 
 -- | A coercion which removes duplicate labels from a record's type.
 nub

@@ -8,6 +8,7 @@ module Data.Record
   , equal
   , merge
   , union
+  , disjointUnion
   , nub
   , class EqualFields
   , equalFields
@@ -181,6 +182,24 @@ union
   -> Record r2
   -> Record r3
 union l r = runFn2 unsafeUnionFn l r
+
+-- | Merges two records where no labels overlap. This restriction exhibits
+-- | better inference than `merge` when the resulting record type is known,
+-- | but one argument is not.
+-- |
+-- | For example, hole `?help` is inferred to have type `{ b :: Int }` here:
+-- |
+-- | ```purescript
+-- | disjoinUnion { a: 5 } ?help :: { a :: Int, b :: Int }
+-- | ```
+disjointUnion
+  :: forall r1 r2 r3
+   . Union r1 r2 r3
+  => Nub r3 r3
+  => Record r1
+  -> Record r2
+  -> Record r3
+disjointUnion l r = runFn2 unsafeUnionFn l r
 
 -- | A coercion which removes duplicate labels from a record's type.
 nub
