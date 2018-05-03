@@ -1,4 +1,4 @@
-module Data.Record.Builder
+module Record.Builder
   ( Builder
   , build
   , insert
