@@ -1,4 +1,4 @@
-module Data.Record.Builder
+module Record.Builder
   ( Builder
   , build
   , insert
@@ -14,8 +14,8 @@ module Data.Record.Builder
 import Prelude
 
 import Data.Function.Uncurried (runFn2)
-import Data.Record.Unsafe (unsafeUnionFn)
 import Data.Symbol (class IsSymbol, SProxy, reflectSymbol)
+import Record.Unsafe.Union (unsafeUnionFn)
 import Type.Row as Row
 import Unsafe.Coerce (unsafeCoerce)
 

@@ -1,4 +1,4 @@
-module Data.Record.ST
+module Record.ST
   ( STRecord
   , freeze
   , thaw
