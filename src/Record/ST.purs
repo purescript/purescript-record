@@ -4,6 +4,7 @@ module Record.ST
   , thaw
   , peek
   , poke
+  , modify
   ) where
 
 import Prelude
@@ -59,3 +60,23 @@ poke
   -> STRecord h r
   -> ST h Unit
 poke l = unsafePoke (reflectSymbol l)
+
+foreign import unsafeModify
+  :: forall a r h
+   . String
+  -> (a -> a)
+  -> STRecord h r
+  -> ST h Unit
+
+-- | Modify a record in place,
+-- | by providing a type-level representative for the label to update
+-- | and a function to update it.
+modify
+  :: forall l h a r r1
+   . Row.Cons l a r1 r
+  => IsSymbol l
+  => SProxy l
+  -> (a -> a)
+  -> STRecord h r
+  -> ST h Unit
+modify l = unsafeModify (reflectSymbol l)
