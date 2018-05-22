@@ -2,16 +2,16 @@ module Test.Main where
 
 import Prelude
 
-import Control.Monad.Eff (Eff)
-import Data.Record (delete, equal, get, insert, modify, rename, set)
-import Data.Record.Builder as Builder
-import Data.Record.ST (pokeSTRecord, pureSTRecord, thawSTRecord)
-import Data.Record.ST as ST
-import Data.Record.Unsafe (unsafeHas)
+import Effect (Effect)
+import Record (delete, equal, get, insert, modify, rename, set)
+import Record.Builder as Builder
+import Control.Monad.ST (run) as ST
+import Record.ST (poke, thaw, freeze, modify) as ST
+import Record.Unsafe (unsafeHas)
 import Data.Symbol (SProxy(..))
-import Test.Assert (ASSERT, assert')
+import Test.Assert (assert')
 
-main :: Eff (assert :: ASSERT) Unit
+main :: Effect Unit
 main = do
   let x = SProxy :: SProxy "x"
       y = SProxy :: SProxy "y"
@@ -38,15 +38,16 @@ main = do
   assert' "unsafeHas2" $
     not $ unsafeHas "b" { a: 42 }
 
-  let stTest1 = pureSTRecord do
-        rec <- thawSTRecord { x: 41, y: "" }
-        pokeSTRecord x 42 rec
-        pokeSTRecord y "testing" rec
-        pure rec
-      stTest2 = pureSTRecord do
-        rec <- thawSTRecord { x: 41 }
-        ST.modify x (_ + 1) rec
-        pure rec
+  let
+    stTest1 = ST.run do
+      rec <- ST.thaw { x: 41, y: "" }
+      ST.poke x 42 rec
+      ST.poke y "testing" rec
+      ST.freeze rec
+    stTest2 = ST.run do
+      rec <- ST.thaw { x: 41 }
+      ST.modify x (_ + 1) rec
+      ST.freeze rec
 
   assert' "pokeSTRecord" $
     stTest1.x == 42 && stTest1.y == "testing"
@@ -55,7 +56,8 @@ main = do
   let testBuilder = Builder.build (Builder.insert x 42
                                   >>> Builder.merge { y: true, z: "testing" }
                                   >>> Builder.delete y
+                                  >>> Builder.modify x show
                                   >>> Builder.rename z y) {}
 
-  assert' "Data.Record.Builder" $
-    testBuilder.x == 42 && testBuilder.y == "testing"
+  assert' "Record.Builder" $
+    testBuilder.x == "42" && testBuilder.y == "testing"
