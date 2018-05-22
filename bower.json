@@ -19,7 +19,8 @@
   "dependencies": {
     "purescript-functions": "#compiler/0.12",
     "purescript-typelevel-prelude": "#compiler/0.12",
-    "purescript-st": "#compiler/0.12"
+    "purescript-st": "#compiler/0.12",
+    "purescript-unsafe-coerce": "#compiler/0.12"
   },
   "devDependencies": {
     "purescript-assert": "#compiler/0.12"
