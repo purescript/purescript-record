@@ -1,4 +1,4 @@
-module Data.Record
+module Record
   ( get
   , set
   , modify
@@ -6,15 +6,21 @@ module Data.Record
   , delete
   , rename
   , equal
+  , merge
+  , union
+  , disjointUnion
+  , nub
   , class EqualFields
   , equalFields
   ) where
 
-import Data.Function.Uncurried (runFn2, runFn3)
-import Data.Record.Unsafe (unsafeGetFn, unsafeSetFn, unsafeDeleteFn)
+import Data.Function.Uncurried (runFn2)
+import Record.Unsafe (unsafeGet, unsafeSet, unsafeDelete)
+import Record.Unsafe.Union (unsafeUnionFn)
 import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
 import Prelude (class Eq, (&&), (==))
-import Type.Row (class RowLacks, class RowToList, Cons, Nil, RLProxy(RLProxy), kind RowList)
+import Type.Row (class Lacks, class Cons, class Nub, class RowToList, class Union, Cons, Nil, RLProxy(RLProxy), kind RowList)
+import Unsafe.Coerce (unsafeCoerce)
 
 -- | Get a property for a label which is specified using a value-level proxy for
 -- | a type-level string.
@@ -27,11 +33,11 @@ import Type.Row (class RowLacks, class RowToList, Cons, Nil, RLProxy(RLProxy), k
 get
   :: forall r r' l a
    . IsSymbol l
-  => RowCons l a r' r
+  => Cons l a r' r
   => SProxy l
   -> Record r
   -> a
-get l r = runFn2 unsafeGetFn (reflectSymbol l) r
+get l r = unsafeGet (reflectSymbol l) r
 
 -- | Set a property for a label which is specified using a value-level proxy for
 -- | a type-level string.
@@ -45,13 +51,13 @@ get l r = runFn2 unsafeGetFn (reflectSymbol l) r
 set
   :: forall r1 r2 r l a b
    . IsSymbol l
-  => RowCons l a r r1
-  => RowCons l b r r2
+  => Cons l a r r1
+  => Cons l b r r2
   => SProxy l
   -> b
   -> Record r1
   -> Record r2
-set l b r = runFn3 unsafeSetFn (reflectSymbol l) b r
+set l b r = unsafeSet (reflectSymbol l) b r
 
 -- | Modify a property for a label which is specified using a value-level proxy for
 -- | a type-level string.
@@ -65,8 +71,8 @@ set l b r = runFn3 unsafeSetFn (reflectSymbol l) b r
 modify
   :: forall r1 r2 r l a b
    . IsSymbol l
-  => RowCons l a r r1
-  => RowCons l b r r2
+  => Cons l a r r1
+  => Cons l b r r2
   => SProxy l
   -> (a -> b)
   -> Record r1
@@ -80,18 +86,18 @@ modify l f r = set l (f (get l r)) r
 -- |
 -- | ```purescript
 -- | insert (SProxy :: SProxy "x")
--- |   :: forall r a. RowLacks "x" r => a -> { | r } -> { x :: a | r }
+-- |   :: forall r a. Lacks "x" r => a -> { | r } -> { x :: a | r }
 -- | ```
 insert
   :: forall r1 r2 l a
    . IsSymbol l
-  => RowLacks l r1
-  => RowCons l a r1 r2
+  => Lacks l r1
+  => Cons l a r1 r2
   => SProxy l
   -> a
   -> Record r1
   -> Record r2
-insert l a r = runFn3 unsafeSetFn (reflectSymbol l) a r
+insert l a r = unsafeSet (reflectSymbol l) a r
 
 -- | Delete a property for a label which is specified using a value-level proxy for
 -- | a type-level string.
@@ -103,17 +109,17 @@ insert l a r = runFn3 unsafeSetFn (reflectSymbol l) a r
 -- |
 -- | ```purescript
 -- | delete (SProxy :: SProxy "x")
--- |   :: forall r a. RowLacks "x" r => { x :: a | r } -> { | r }
+-- |   :: forall r a. Lacks "x" r => { x :: a | r } -> { | r }
 -- | ```
 delete
   :: forall r1 r2 l a
    . IsSymbol l
-  => RowLacks l r1
-  => RowCons l a r1 r2
+  => Lacks l r1
+  => Cons l a r1 r2
   => SProxy l
   -> Record r2
   -> Record r1
-delete l r = runFn2 unsafeDeleteFn (reflectSymbol l) r
+delete l r = unsafeDelete (reflectSymbol l) r
 
 -- | Rename a property for a label which is specified using a value-level proxy for
 -- | a type-level string.
@@ -125,21 +131,84 @@ delete l r = runFn2 unsafeDeleteFn (reflectSymbol l) r
 -- |
 -- | ```purescript
 -- | rename (SProxy :: SProxy "x") (SProxy :: SProxy "y")
--- |   :: forall a r. RowLacks "x" r => RowLacks "y" r => { x :: a | r} -> { y :: a | r}
+-- |   :: forall a r. Lacks "x" r => Lacks "y" r => { x :: a | r} -> { y :: a | r}
 -- | ```
 rename :: forall prev next ty input inter output
    . IsSymbol prev
   => IsSymbol next
-  => RowCons prev ty inter input
-  => RowLacks prev inter
-  => RowCons next ty inter output
-  => RowLacks next inter
+  => Cons prev ty inter input
+  => Lacks prev inter
+  => Cons next ty inter output
+  => Lacks next inter
   => SProxy prev
   -> SProxy next
   -> Record input
   -> Record output
 rename prev next record =
   insert next (get prev record) (delete prev record :: Record inter)
+
+-- | Merges two records with the first record's labels taking precedence in the
+-- | case of overlaps.
+-- |
+-- | For example:
+-- |
+-- | ```purescript
+-- | merge { x: 1, y: "y" } { y: 2, z: true }
+-- |  :: { x :: Int, y :: String, z :: Boolean }
+-- | ```
+merge
+  :: forall r1 r2 r3 r4
+   . Union r1 r2 r3
+  => Nub r3 r4
+  => Record r1
+  -> Record r2
+  -> Record r4
+merge l r = runFn2 unsafeUnionFn l r
+
+-- | Merges two records with the first record's labels taking precedence in the
+-- | case of overlaps. Unlike `merge`, this does not remove duplicate labels
+-- | from the resulting record type. This can result in better inference for
+-- | some pipelines, deferring the need for a `Nub` constraint.
+-- |
+-- | For example:
+-- |
+-- | ```purescript
+-- | union { x: 1, y: "y" } { y: 2, z: true }
+-- |  :: { x :: Int, y :: String, y :: Int, z :: Boolean }
+-- | ```
+union
+  :: forall r1 r2 r3
+   . Union r1 r2 r3
+  => Record r1
+  -> Record r2
+  -> Record r3
+union l r = runFn2 unsafeUnionFn l r
+
+-- | Merges two records where no labels overlap. This restriction exhibits
+-- | better inference than `merge` when the resulting record type is known,
+-- | but one argument is not.
+-- |
+-- | For example, hole `?help` is inferred to have type `{ b :: Int }` here:
+-- |
+-- | ```purescript
+-- | disjoinUnion { a: 5 } ?help :: { a :: Int, b :: Int }
+-- | ```
+disjointUnion
+  :: forall r1 r2 r3
+   . Union r1 r2 r3
+  => Nub r3 r3
+  => Record r1
+  -> Record r2
+  -> Record r3
+disjointUnion l r = runFn2 unsafeUnionFn l r
+
+-- | A coercion which removes duplicate labels from a record's type.
+nub
+  :: forall r1 r2
+   . Nub r1 r2
+  => Record r1
+  -> Record r2
+nub = unsafeCoerce
 
 -- | Check two records of the same type for equality.
 equal
@@ -158,7 +227,7 @@ instance equalFieldsCons
   ::
   ( IsSymbol name
   , Eq ty
-  , RowCons name ty tailRow row
+  , Cons name ty tailRow row
   , EqualFields tail row
   ) => EqualFields (Cons name ty tail) row where
   equalFields _ a b = get' a == get' b && equalRest a b

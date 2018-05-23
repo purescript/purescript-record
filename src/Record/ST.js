@@ -10,25 +10,19 @@ function copyRecord(rec) {
   return copy;
 }
 
-exports.runSTRecord = function(rec) {
-  return function() {
-    return copyRecord(rec());
-  };
-};
-
-exports.freezeSTRecord = function(rec) {
+exports.freeze = function(rec) {
   return function() {
     return copyRecord(rec);
   };
 };
 
-exports.thawSTRecord = function(rec) {
+exports.thaw = function(rec) {
   return function() {
     return copyRecord(rec);
   };
 };
 
-exports.unsafePeekSTRecord = function(l) {
+exports.unsafePeek = function(l) {
   return function(rec) {
     return function() {
       return rec[l];
@@ -36,11 +30,21 @@ exports.unsafePeekSTRecord = function(l) {
   };
 };
 
-exports.unsafePokeSTRecord = function(l) {
+exports.unsafePoke = function(l) {
   return function(a) {
     return function(rec) {
       return function() {
         rec[l] = a;
+      };
+    };
+  };
+};
+
+exports.unsafeModify = function(l) {
+  return function(f) {
+    return function(rec) {
+      return function() {
+        rec[l] = f(rec[l]);
       };
     };
   };
