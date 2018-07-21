@@ -45,6 +45,10 @@ build (Builder b) r1 = b (copyRecord r1)
 derive newtype instance semigroupoidBuilder :: Semigroupoid Builder
 derive newtype instance categoryBuilder :: Category Builder
 
+-- | Pass the record through unchanged.
+passThrough :: forall r. Builder r r
+passThrough = identity
+
 -- | Build by inserting a new field.
 insert
   :: forall l a r1 r2
