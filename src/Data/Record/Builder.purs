@@ -13,13 +13,6 @@ import Prelude
 import Data.Symbol (class IsSymbol, SProxy, reflectSymbol)
 import Type.Row (class RowLacks)
 
--- These FFI functions are effectful in that they in-place mutate a shared object, but they
---   can be used as pure functions if their use is restricted to inside the `Builder` type,
---   as the intermediate states can't be observed. These mutations are performed all-at-once
---   in the `build` function, and performed on a fresh clone of another record. This means
---   `build` can be considered a pure function.
--- Also worth noting is that the record mutations are tracked in the type signature of the
---   corresponding safe versions of these functions.
 foreign import copyRecord :: forall r1. Record r1 -> Record r1
 foreign import unsafeInsert :: forall a r1 r2. String -> a -> Record r1 -> Record r2
 foreign import unsafeModify :: forall a b r1 r2. String -> (a -> b) -> Record r1 -> Record r2
@@ -30,6 +23,9 @@ foreign import unsafeMerge :: forall r1 r2 r3. Record r1 -> Record r2 -> Record 
 -- | A `Builder` can be used to `build` a record by incrementally adding
 -- | fields in-place, instead of using `insert` and repeatedly generating new
 -- | immutable records which need to be garbage collected.
+-- |
+-- | The mutations accumulated in a `Builder` are safe because intermediate states can't be
+-- | observed. These mutations, then, are performed all-at-once in the `build` function.
 -- |
 -- | The `Category` instance for `Builder` can be used to compose builders.
 -- |
