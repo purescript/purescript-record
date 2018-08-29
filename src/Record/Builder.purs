@@ -29,6 +29,9 @@ foreign import unsafeRename :: forall r1 r2. String -> String -> Record r1 -> Re
 -- | fields in-place, instead of using `insert` and repeatedly generating new
 -- | immutable records which need to be garbage collected.
 -- |
+-- | The mutations accumulated in a `Builder` are safe because intermediate states can't be
+-- | observed. These mutations, then, are performed all-at-once in the `build` function.
+-- |
 -- | The `Category` instance for `Builder` can be used to compose builders.
 -- |
 -- | For example:
