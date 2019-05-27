@@ -20,7 +20,6 @@
     "purescript-functions": "^4.0.0",
     "purescript-prelude": "^4.1.0",
     "purescript-st": "^4.0.0",
-    "purescript-typelevel-prelude": "^4.0.0",
     "purescript-unsafe-coerce": "^4.0.0"
   },
   "devDependencies": {

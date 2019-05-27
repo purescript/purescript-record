@@ -15,8 +15,8 @@ import Prelude
 
 import Data.Function.Uncurried (runFn2)
 import Data.Symbol (class IsSymbol, SProxy, reflectSymbol)
+import Prim.Row as Row
 import Record.Unsafe.Union (unsafeUnionFn)
-import Type.Row as Row
 import Unsafe.Coerce (unsafeCoerce)
 
 foreign import copyRecord :: forall r1. Record r1 -> Record r1

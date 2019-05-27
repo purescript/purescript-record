@@ -3,7 +3,7 @@ module Examples where
 import Prelude
 
 import Record as Record
-import Type.Prelude (SProxy(..))
+import Data.Symbol (SProxy(..))
 
 x_ = SProxy :: SProxy "x"
 y_ = SProxy :: SProxy "y"

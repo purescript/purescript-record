@@ -14,12 +14,15 @@ module Record
   , equalFields
   ) where
 
+import Prelude
+
 import Data.Function.Uncurried (runFn2)
+import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
+import Prim.Row (class Lacks, class Cons, class Nub, class Union)
+import Prim.RowList (class RowToList, kind RowList, Cons, Nil)
 import Record.Unsafe (unsafeGet, unsafeSet, unsafeDelete)
 import Record.Unsafe.Union (unsafeUnionFn)
-import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
-import Prelude (class Eq, (&&), (==))
-import Type.Row (class Lacks, class Cons, class Nub, class RowToList, class Union, Cons, Nil, RLProxy(RLProxy), kind RowList)
+import Type.Data.RowList (RLProxy(..))
 import Unsafe.Coerce (unsafeCoerce)
 
 -- | Get a property for a label which is specified using a value-level proxy for
