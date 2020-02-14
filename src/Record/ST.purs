@@ -9,7 +9,7 @@ module Record.ST
 
 import Prelude
 
-import Control.Monad.ST (ST, kind Region)
+import Control.Monad.ST (ST, Region)
 import Data.Symbol (class IsSymbol, SProxy, reflectSymbol)
 import Prim.Row as Row
 
@@ -17,7 +17,7 @@ import Prim.Row as Row
 -- | belonging to the state thread `h`.
 -- |
 -- | Create values of type `STRecord` using `thaw`.
-foreign import data STRecord :: Region -> # Type -> Type
+foreign import data STRecord :: Region -> Row Type -> Type
 
 -- | Freeze a mutable record, creating a copy.
 foreign import freeze :: forall h r. STRecord h r -> ST h (Record r)
