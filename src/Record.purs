@@ -194,7 +194,7 @@ union l r = runFn2 unsafeUnionFn l r
 -- | For example, hole `?help` is inferred to have type `{ b :: Int }` here:
 -- |
 -- | ```purescript
--- | disjoinUnion { a: 5 } ?help :: { a :: Int, b :: Int }
+-- | disjointUnion { a: 5 } ?help :: { a :: Int, b :: Int }
 -- | ```
 disjointUnion
   :: forall r1 r2 r3
