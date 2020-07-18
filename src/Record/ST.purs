@@ -19,6 +19,8 @@ import Prim.Row as Row
 -- | Create values of type `STRecord` using `thaw`.
 foreign import data STRecord :: Region -> # Type -> Type
 
+type role STRecord nominal representational
+
 -- | Freeze a mutable record, creating a copy.
 foreign import freeze :: forall h r. STRecord h r -> ST h (Record r)
 
