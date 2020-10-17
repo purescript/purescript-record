@@ -1,6 +1,7 @@
 module Record.Builder
   ( Builder
   , build
+  , buildFromScratch
   , insert
   , modify
   , delete
@@ -44,6 +45,10 @@ newtype Builder a b = Builder (a -> b)
 -- | Build a record, starting from some other record.
 build :: forall r1 r2. Builder (Record r1) (Record r2) -> Record r1 -> Record r2
 build (Builder b) r1 = b (copyRecord r1)
+
+-- | Build a record from scratch.
+buildFromScratch :: forall r. Builder (Record ()) (Record r) -> Record r
+buildFromScratch = flip build {}
 
 derive newtype instance semigroupoidBuilder :: Semigroupoid Builder
 derive newtype instance categoryBuilder :: Category Builder
