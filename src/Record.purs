@@ -19,7 +19,7 @@ import Prelude
 import Data.Function.Uncurried (runFn2)
 import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
 import Prim.Row (class Lacks, class Cons, class Nub, class Union)
-import Prim.RowList (class RowToList, kind RowList, Cons, Nil)
+import Prim.RowList (class RowToList, RowList, Cons, Nil)
 import Record.Unsafe (unsafeGet, unsafeSet, unsafeDelete)
 import Record.Unsafe.Union (unsafeUnionFn)
 import Type.Data.RowList (RLProxy(..))
@@ -223,7 +223,7 @@ equal
   -> Boolean
 equal a b = equalFields (RLProxy :: RLProxy rs) a b
 
-class EqualFields (rs :: RowList) (row :: # Type) | rs -> row where
+class EqualFields (rs :: RowList Type) (row :: Row Type) | rs -> row where
   equalFields :: RLProxy rs -> Record row -> Record row -> Boolean
 
 instance equalFieldsCons
