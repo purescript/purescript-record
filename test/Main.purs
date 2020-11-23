@@ -8,14 +8,14 @@ import Record.Builder as Builder
 import Control.Monad.ST (run) as ST
 import Record.ST (poke, thaw, freeze, modify) as ST
 import Record.Unsafe (unsafeHas)
-import Data.Symbol (SProxy(..))
 import Test.Assert (assert')
+import Type.Proxy (Proxy(..))
 
 main :: Effect Unit
 main = do
-  let x = SProxy :: SProxy "x"
-      y = SProxy :: SProxy "y"
-      z = SProxy :: SProxy "z"
+  let x = Proxy :: Proxy "x"
+      y = Proxy :: Proxy "y"
+      z = Proxy :: Proxy "z"
 
   assert' "insert, get" $
     get x (insert x 42 {}) == 42
