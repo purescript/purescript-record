@@ -13,10 +13,10 @@ bower install purescript-record
 
 ## Examples
 
-Given some Symbol ("type level String") Proxy (`SProxy`) and a constrained or concrete record type, you can use this library to generically modify records.
+Given some Symbol ("type level String") Proxy and a constrained or concrete record type, you can use this library to generically modify records.
 
 ```purs
-x_ = SProxy :: SProxy "x"
+x_ = Proxy :: Proxy "x"
 
 -- we can get a value out of a field
 gotX :: Int
