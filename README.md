@@ -1,14 +1,15 @@
 # purescript-record
 
-[![Latest release](http://img.shields.io/bower/v/purescript-record.svg)](https://github.com/purescript/purescript-record/releases)
-[![Build Status](https://travis-ci.org/purescript/purescript-record.svg?branch=master)](https://travis-ci.org/purescript/purescript-record)
+[![Latest release](http://img.shields.io/github/release/purescript/purescript-record.svg)](https://github.com/purescript/purescript-record/releases)
+[![Build status](https://github.com/purescript/purescript-record/workflows/CI/badge.svg?branch=master)](https://github.com/purescript/purescript-record/actions?query=workflow%3ACI+branch%3Amaster)
+[![Pursuit](https://pursuit.purescript.org/packages/purescript-record/badge)](https://pursuit.purescript.org/packages/purescript-record)
 
 Functions for working with records and polymorphic labels
 
 ## Installation
 
 ```
-bower install purescript-record
+spago install record
 ```
 
 ## Examples
