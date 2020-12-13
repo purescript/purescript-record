@@ -1,5 +1,6 @@
 module Record.ST
   ( STRecord
+  , run
   , new
   , freeze
   , thaw
@@ -21,6 +22,12 @@ import Prim.Row as Row
 foreign import data STRecord :: Region -> Row Type -> Type
 
 type role STRecord nominal representational
+
+-- | Freeze a mutable record, creating an immutable record.
+-- | Use this function as you would use `ST.run` to freeze a mutable reference.
+-- |
+-- | The rank-2 type prevents the record from escaping the scope of `run`.
+foreign import run :: forall r. (forall h. ST h (STRecord h r)) -> Record r
 
 -- | Create a new, empty mutable record
 foreign import new :: forall h. ST h (STRecord h ())

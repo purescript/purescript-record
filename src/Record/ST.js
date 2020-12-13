@@ -1,5 +1,9 @@
 "use strict";
 
+exports.run = function (f) {
+  return f();
+};
+
 exports["new"] = function () {
   return {};
 };
