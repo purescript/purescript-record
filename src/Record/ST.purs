@@ -1,5 +1,6 @@
 module Record.ST
   ( STRecord
+  , new
   , freeze
   , thaw
   , peek
@@ -20,6 +21,9 @@ import Prim.Row as Row
 foreign import data STRecord :: Region -> Row Type -> Type
 
 type role STRecord nominal representational
+
+-- | Create a new, empty mutable record
+foreign import new :: forall h. ST h (STRecord h ())
 
 -- | Freeze a mutable record, creating a copy.
 foreign import freeze :: forall h r. STRecord h r -> ST h (Record r)

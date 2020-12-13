@@ -1,5 +1,9 @@
 "use strict";
 
+exports["new"] = function () {
+  return {};
+};
+
 function copyRecord(rec) {
   var copy = {};
   for (var key in rec) {
