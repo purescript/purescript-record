@@ -27,5 +27,5 @@ setX2 = Record.set x_ unit { x: 0 }
 modifyX :: { x :: Int }
 modifyX = Record.modify x_ (\value -> value + 1) { x: 0 }
 
-mergedXY :: { x :: Int , y :: Int }
-mergedXY = Record.merge { x: 1 } { y: 1 }
+withDefaultsXY :: { x :: Int , y :: Int }
+withDefaultsXY = Record.withDefaults { x: 1 } { y: 1 }

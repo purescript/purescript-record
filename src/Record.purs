@@ -6,7 +6,7 @@ module Record
   , delete
   , rename
   , equal
-  , merge
+  , withDefaults
   , union
   , disjointUnion
   , nub
@@ -156,20 +156,20 @@ rename prev next record =
 -- | For example:
 -- |
 -- | ```purescript
--- | merge { x: 1, y: "y" } { y: 2, z: true }
+-- | { x: 1, y: "y" } `withDefaults` { y: 2, z: true }
 -- |  :: { x :: Int, y :: String, z :: Boolean }
 -- | ```
-merge
+withDefaults
   :: forall r1 r2 r3 r4
    . Union r1 r2 r3
   => Nub r3 r4
   => Record r1
   -> Record r2
   -> Record r4
-merge l r = runFn2 unsafeUnionFn l r
+withDefaults l r = runFn2 unsafeUnionFn l r
 
 -- | Merges two records with the first record's labels taking precedence in the
--- | case of overlaps. Unlike `merge`, this does not remove duplicate labels
+-- | case of overlaps. Unlike `withDefaults`, this does not remove duplicate labels
 -- | from the resulting record type. This can result in better inference for
 -- | some pipelines, deferring the need for a `Nub` constraint.
 -- |
@@ -188,8 +188,8 @@ union
 union l r = runFn2 unsafeUnionFn l r
 
 -- | Merges two records where no labels overlap. This restriction exhibits
--- | better inference than `merge` when the resulting record type is known,
--- | but one argument is not.
+-- | better inference than `withDefaults` when the resulting record type is
+-- | known, but one argument is not.
 -- |
 -- | For example, hole `?help` is inferred to have type `{ b :: Int }` here:
 -- |

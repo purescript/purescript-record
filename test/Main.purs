@@ -3,7 +3,7 @@ module Test.Main where
 import Prelude
 
 import Effect (Effect)
-import Record (delete, equal, get, insert, merge, modify, rename, set)
+import Record (delete, equal, get, insert, withDefaults, modify, rename, set)
 import Record.Builder as Builder
 import Control.Monad.ST (run) as ST
 import Record.ST (poke, thaw, freeze, modify) as ST
@@ -33,8 +33,8 @@ main = do
     equal { a: 1, b: "b", c: true } { a: 1, b: "b", c: true }
   assert' "equal2" $
     not $ equal { a: 1, b: "b", c: true } { a: 1, b: "b", c: false }
-  assert' "merge" $
-    equal { x: 1, y: "y" } (merge { y: "y" } { x: 1, y: 2 })
+  assert' "withDefaults" $
+    equal { x: 1, y: "y" } (withDefaults { y: "y" } { x: 1, y: 2 })
   assert' "unsafeHas1" $
     unsafeHas "a" { a: 42 }
   assert' "unsafeHas2" $
