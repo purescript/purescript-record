@@ -150,14 +150,27 @@ rename :: forall proxy prev next ty input inter output
 rename prev next record =
   insert next (get prev record) (delete prev record :: Record inter)
 
--- | Merges two records with the first record's labels taking precedence in the
--- | case of overlaps.
--- |
--- | For example:
+-- | Creates a copy of the first record that also includes the values of
+-- | the second record whose fields do not exist in the first record. If
+-- | the two records have overlapping fields, the first record's field's
+-- | value and type are used.
 -- |
 -- | ```purescript
--- | { x: 1, y: "y" } `withDefaults` { y: 2, z: true }
--- |  :: { x :: Int, y :: String, z :: Boolean }
+-- | -- no fields overlaps between the two
+-- | { x: 1 } `withDefaults` { y: 2 }
+-- |  :: { x :: Int, y :: Int }
+-- | { x: 1 } `withDefaults` { y: 2 } == { x: 1, y: 2 }
+-- |
+-- | -- both have the 'y' field, so the first record's value is used
+-- | { x: 1, y: 2 } `withDefaults` { y: 4, z: 8 }
+-- |  :: { x :: Int, y :: Int, z :: Int }
+-- | { x: 1, y: 2 } `withDefaults` { y: 4, z: 8 } == { x:1, y: 2, z: 8 }
+-- |
+-- | -- both have the 'y' field but each refers to a different type
+-- | -- the first record's value (and type) is used
+-- | { x: 1, y: "2" } `withDefaults` { y: 4, z: 8 }
+-- |  :: { x :: Int, y :: String, z :: Int }
+-- | { x: 1, y: "2" } `withDefaults` { y: 2, z: true } == {x: 1, y: "2", z: true }
 -- | ```
 withDefaults
   :: forall r1 r2 r3 r4
