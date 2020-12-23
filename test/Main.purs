@@ -5,8 +5,7 @@ import Prelude
 import Effect (Effect)
 import Record (delete, equal, get, insert, merge, modify, rename, set)
 import Record.Builder as Builder
-import Control.Monad.ST (run) as ST
-import Record.ST (poke, thaw, freeze, modify) as ST
+import Record.ST (run, poke, thaw, modify) as ST
 import Record.Unsafe (unsafeHas)
 import Test.Assert (assert')
 import Type.Proxy (Proxy(..))
@@ -45,11 +44,11 @@ main = do
       rec <- ST.thaw { x: 41, y: "" }
       ST.poke x 42 rec
       ST.poke y "testing" rec
-      ST.freeze rec
+      pure rec
     stTest2 = ST.run do
       rec <- ST.thaw { x: 41 }
       ST.modify x (_ + 1) rec
-      ST.freeze rec
+      pure rec
 
   assert' "pokeSTRecord" $
     stTest1.x == 42 && stTest1.y == "testing"
