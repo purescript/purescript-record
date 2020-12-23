@@ -254,7 +254,7 @@ union l r = runFn2 unsafeUnionFn l r
 -- | -- { a: 5, b: 7 }
 -- | ```
 -- | 
--- | However, this example does noot compile because both records share the key `a`:
+-- | However, this example does not compile because both records share the key `a`:
 -- | ```purescript
 -- | disjointUnion { a: 5 } { a: 7, b: 5 }
 -- | ```
