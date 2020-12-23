@@ -63,3 +63,23 @@ main = do
 
   assert' "Record.Builder" $
     testBuilder.x == "42" && testBuilder.y == "testing"
+
+  assert' "Record.Builder.merge" $
+    let { x, y, z } = Builder.build (Builder.merge { x: 1, y: "y" }) { y: 2, z: true }
+          :: { x :: Int, y :: String, z :: Boolean }
+    in x == 1 && y == "y" && z
+
+  assert' "Record.Builder.union" $
+    let { x, y, z } = Builder.build (Builder.union { x: 1, y: "y" }) { y: 2, z: true }
+          :: { x :: Int, y :: String, y :: Int, z :: Boolean }
+    in x == 1 && y == "y" && z
+
+  assert' "Record.Builder.flip merge" $
+    let { x, y, z } = Builder.build (Builder.flip Builder.merge { x: 1, y: "y" }) { y: 2, z: true }
+          :: { x :: Int, y :: Int, z :: Boolean }
+    in x == 1 && y == 2 && z
+
+  assert' "Record.Builder.flip union" $
+    let { x, y, z } = Builder.build (Builder.flip Builder.union { x: 1, y: "y" }) { y: 2, z: true }
+          :: { x :: Int, y :: Int, y :: String, z :: Boolean }
+    in x == 1 && y == 2 && z

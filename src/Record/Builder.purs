@@ -2,6 +2,7 @@ module Record.Builder
   ( Builder
   , build
   , buildFromScratch
+  , flip
   , insert
   , modify
   , delete
@@ -12,8 +13,9 @@ module Record.Builder
   , nub
   ) where
 
-import Prelude
+import Prelude hiding (flip)
 
+import Data.Function (flip) as Function
 import Data.Function.Uncurried (runFn2)
 import Data.Symbol (class IsSymbol, reflectSymbol)
 import Prim.Row as Row
@@ -48,7 +50,11 @@ build (Builder b) r1 = b (copyRecord r1)
 
 -- | Build a record from scratch.
 buildFromScratch :: forall r. Builder (Record ()) (Record r) -> Record r
-buildFromScratch = flip build {}
+buildFromScratch = Function.flip build {}
+
+-- | Flip a function of one argument returning a builder.
+flip :: forall r1 r2 r3. (Record r1 -> Builder (Record r2) (Record r3)) -> Record r2 -> Builder (Record r1) (Record r3)
+flip f b = Builder \a -> build (f a) b
 
 derive newtype instance semigroupoidBuilder :: Semigroupoid Builder
 derive newtype instance categoryBuilder :: Category Builder
@@ -98,25 +104,40 @@ rename :: forall proxy l1 l2 a r1 r2 r3
   -> Builder (Record r1) (Record r3)
 rename l1 l2 = Builder \r1 -> unsafeRename (reflectSymbol l1) (reflectSymbol l2) r1
 
--- | Build by merging existing fields from another record.
+-- | Build by merging existing fields from another record, taking precedence
+-- | in the case of overlaps.
+-- |
+-- | For example:
+-- |
+-- | ```purescript
+-- | build (merge { x: 1, y: "y" }) { y: 2, z: true }
+-- |  :: { x :: Int, y :: String, z :: Boolean }
+-- | ```
 merge
   :: forall r1 r2 r3 r4
    . Row.Union r1 r2 r3
   => Row.Nub r3 r4
-  => Record r2
-  -> Builder (Record r1) (Record r4)
-merge r2 = Builder \r1 -> runFn2 unsafeUnionFn r1 r2
+  => Record r1
+  -> Builder (Record r2) (Record r4)
+merge r1 = Builder \r2 -> runFn2 unsafeUnionFn r1 r2
 
--- | Build by merging existing fields from another record. Unlike `merge`,
--- | this does not remove duplicate labels from the resulting record type.
--- | This can result in better inference for some pipelines, deferring the
--- | need for a `Nub` constraint.
+-- | Build by merging existing fields from another record, taking precedence
+-- | in the case of overlaps. Unlike `merge`, this does not remove duplicate
+-- | labels from the resulting record type. This can result in better inference
+-- | for some pipelines, deferring the need for a `Nub` constraint.
+-- |
+-- | For example:
+-- |
+-- | ```purescript
+-- | build (union { x: 1, y: "y" }) { y: 2, z: true }
+-- |  :: { x :: Int, y :: String, y :: Int, z :: Boolean }
+-- | ```
 union
   :: forall r1 r2 r3
    . Row.Union r1 r2 r3
-  => Record r2
-  -> Builder (Record r1) (Record r3)
-union r2 = Builder \r1 -> runFn2 unsafeUnionFn r1 r2
+  => Record r1
+  -> Builder (Record r2) (Record r3)
+union r1 = Builder \r2 -> runFn2 unsafeUnionFn r1 r2
 
 -- | Build by merging some disjoint set of fields from another record.
 disjointUnion
