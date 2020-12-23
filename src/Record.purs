@@ -17,12 +17,12 @@ module Record
 import Prelude
 
 import Data.Function.Uncurried (runFn2)
-import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
+import Data.Symbol (class IsSymbol, reflectSymbol)
 import Prim.Row (class Lacks, class Cons, class Nub, class Union)
-import Prim.RowList (class RowToList, kind RowList, Cons, Nil)
+import Prim.RowList (class RowToList, RowList, Cons, Nil)
 import Record.Unsafe (unsafeGet, unsafeSet, unsafeDelete)
 import Record.Unsafe.Union (unsafeUnionFn)
-import Type.Data.RowList (RLProxy(..))
+import Type.Proxy (Proxy(..))
 import Unsafe.Coerce (unsafeCoerce)
 
 -- | Get a property for a label which is specified using a value-level proxy for
@@ -31,20 +31,20 @@ import Unsafe.Coerce (unsafeCoerce)
 -- | For example:
 -- |
 -- | ```purescript
--- | get (SProxy :: SProxy "x") { x: 14 }
+-- | get (Proxy :: Proxy "x") { x: 14 }
 -- | -- 14
 -- | ```
 -- |
 -- | More generally:
 -- |
 -- | ```purescript
--- | get (SProxy :: SProxy "x") :: forall r a. { x :: a | r } -> a
+-- | get (Proxy :: Proxy "x") :: forall r a. { x :: a | r } -> a
 -- | ```
 get
-  :: forall r r' l a
+  :: forall proxy r r' l a
    . IsSymbol l
   => Cons l a r' r
-  => SProxy l
+  => proxy l
   -> Record r
   -> a
 get l r = unsafeGet (reflectSymbol l) r
@@ -55,22 +55,22 @@ get l r = unsafeGet (reflectSymbol l) r
 -- | For example:
 -- |
 -- | ```purescript
--- | set (SProxy :: SProxy "x") "new fixed value" { x: "original" }
+-- | set (Proxy :: Proxy "x") "new fixed value" { x: "original" }
 -- | -- { x: "new fixed value" }
 -- | ```
 -- |
 -- | More generally:
 -- |
 -- | ```purescript
--- | set (SProxy :: SProxy "x")
+-- | set (Proxy :: Proxy "x")
 -- |   :: forall r a b. a -> { x :: b | r } -> { x :: a | r }
 -- | ```
 set
-  :: forall r1 r2 r l a b
+  :: forall proxy r1 r2 r l a b
    . IsSymbol l
   => Cons l a r r1
   => Cons l b r r2
-  => SProxy l
+  => proxy l
   -> b
   -> Record r1
   -> Record r2
@@ -82,22 +82,22 @@ set l b r = unsafeSet (reflectSymbol l) b r
 -- | For example:
 -- |
 -- | ```purescript
--- | modify (SProxy :: SProxy "x") toUpper { x: "example" }
+-- | modify (Proxy :: Proxy "x") toUpper { x: "example" }
 -- | -- { x: "EXAMPLE" }
 -- | ```
 -- |
 -- | More generally:
 -- |
 -- | ```purescript
--- | modify (SProxy :: SProxy "x")
+-- | modify (Proxy :: Proxy "x")
 -- |   :: forall r a b. (a -> b) -> { x :: a | r } -> { x :: b | r }
 -- | ```
 modify
-  :: forall r1 r2 r l a b
+  :: forall proxy r1 r2 r l a b
    . IsSymbol l
   => Cons l a r r1
   => Cons l b r r2
-  => SProxy l
+  => proxy l
   -> (a -> b)
   -> Record r1
   -> Record r2
@@ -109,22 +109,22 @@ modify l f r = set l (f (get l r)) r
 -- | For example:
 -- |
 -- | ```purescript
--- | insert (SProxy :: SProxy "x") "a new value" { y: 14 }
+-- | insert (Proxy :: Proxy "x") "a new value" { y: 14 }
 -- | -- { x: "a new value", y: 14 }
 -- | ```
 -- |
 -- | More generally:
 -- |
 -- | ```purescript
--- | insert (SProxy :: SProxy "x")
+-- | insert (Proxy :: Proxy "x")
 -- |   :: forall r a. Lacks "x" r => a -> { | r } -> { x :: a | r }
 -- | ```
 insert
-  :: forall r1 r2 l a
+  :: forall proxy r1 r2 l a
    . IsSymbol l
   => Lacks l r1
   => Cons l a r1 r2
-  => SProxy l
+  => proxy l
   -> a
   -> Record r1
   -> Record r2
@@ -139,22 +139,22 @@ insert l a r = unsafeSet (reflectSymbol l) a r
 -- | For example:
 -- |
 -- | ```purescript
--- | delete (SProxy :: SProxy "x") { x: "I will leave", y: "I stay" }
+-- | delete (Proxy :: Proxy "x") { x: "I will leave", y: "I stay" }
 -- | -- { y: "I stay" }
 -- | ```
 -- |
 -- | More generally:
 -- |
 -- | ```purescript
--- | delete (SProxy :: SProxy "x")
+-- | delete (Proxy :: Proxy "x")
 -- |   :: forall r a. Lacks "x" r => { x :: a | r } -> { | r }
 -- | ```
 delete
-  :: forall r1 r2 l a
+  :: forall proxy r1 r2 l a
    . IsSymbol l
   => Lacks l r1
   => Cons l a r1 r2
-  => SProxy l
+  => proxy l
   -> Record r2
   -> Record r1
 delete l r = unsafeDelete (reflectSymbol l) r
@@ -168,25 +168,25 @@ delete l r = unsafeDelete (reflectSymbol l) r
 -- | For example:
 -- |
 -- | ```purescript
--- | rename (SProxy :: SProxy "x") (SProxy :: SProxy "y") { x: "I get a new key", z: "I stay" }
+-- | rename (Proxy :: Proxy "x") (Proxy :: Proxy "y") { x: "I get a new key", z: "I stay" }
 -- | -- { y: "I get a new key", z: "I stay" }
 -- | ```
 -- |
 -- | More generally:
 -- |
 -- | ```purescript
--- | rename (SProxy :: SProxy "x") (SProxy :: SProxy "y")
+-- | rename (Proxy :: Proxy "x") (Proxy :: Proxy "y")
 -- |   :: forall a r. Lacks "x" r => Lacks "y" r => { x :: a | r} -> { y :: a | r}
 -- | ```
-rename :: forall prev next ty input inter output
+rename :: forall proxy prev next ty input inter output
    . IsSymbol prev
   => IsSymbol next
   => Cons prev ty inter input
   => Lacks prev inter
   => Cons next ty inter output
   => Lacks next inter
-  => SProxy prev
-  -> SProxy next
+  => proxy prev
+  -> proxy next
   -> Record input
   -> Record output
 rename prev next record =
@@ -289,10 +289,10 @@ equal
   => Record r
   -> Record r
   -> Boolean
-equal a b = equalFields (RLProxy :: RLProxy rs) a b
+equal a b = equalFields (Proxy :: Proxy rs) a b
 
-class EqualFields (rs :: RowList) (row :: # Type) | rs -> row where
-  equalFields :: RLProxy rs -> Record row -> Record row -> Boolean
+class EqualFields (rs :: RowList Type) (row :: Row Type) | rs -> row where
+  equalFields :: forall rlproxy. rlproxy rs -> Record row -> Record row -> Boolean
 
 instance equalFieldsCons
   ::
@@ -303,8 +303,8 @@ instance equalFieldsCons
   ) => EqualFields (Cons name ty tail) row where
   equalFields _ a b = get' a == get' b && equalRest a b
     where
-      get' = get (SProxy :: SProxy name)
-      equalRest = equalFields (RLProxy :: RLProxy tail)
+      get' = get (Proxy :: Proxy name)
+      equalRest = equalFields (Proxy :: Proxy tail)
 
 instance equalFieldsNil :: EqualFields Nil row where
   equalFields _ _ _ = true

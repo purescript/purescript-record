@@ -9,15 +9,17 @@ module Record.ST
 
 import Prelude
 
-import Control.Monad.ST (ST, kind Region)
-import Data.Symbol (class IsSymbol, SProxy, reflectSymbol)
+import Control.Monad.ST (ST, Region)
+import Data.Symbol (class IsSymbol, reflectSymbol)
 import Prim.Row as Row
 
 -- | A value of type `STRecord h r` represents a mutable record with fields `r`,
 -- | belonging to the state thread `h`.
 -- |
 -- | Create values of type `STRecord` using `thaw`.
-foreign import data STRecord :: Region -> # Type -> Type
+foreign import data STRecord :: Region -> Row Type -> Type
+
+type role STRecord nominal representational
 
 -- | Freeze a mutable record, creating a copy.
 foreign import freeze :: forall h r. STRecord h r -> ST h (Record r)
@@ -34,10 +36,10 @@ foreign import unsafePeek
 -- | Read the current value of a field in a mutable record, by providing a
 -- | type-level representative for the label which should be read.
 peek
-  :: forall l h a r r1
+  :: forall proxy l h a r r1
    . Row.Cons l a r1 r
   => IsSymbol l
-  => SProxy l
+  => proxy l
   -> STRecord h r
   -> ST h a
 peek l = unsafePeek (reflectSymbol l)
@@ -52,10 +54,10 @@ foreign import unsafePoke
 -- | Modify a record in place, by providing a type-level representative for the label
 -- | which should be updated.
 poke
-  :: forall l h a r r1
+  :: forall proxy l h a r r1
    . Row.Cons l a r1 r
   => IsSymbol l
-  => SProxy l
+  => proxy l
   -> a
   -> STRecord h r
   -> ST h Unit
@@ -72,10 +74,10 @@ foreign import unsafeModify
 -- | by providing a type-level representative for the label to update
 -- | and a function to update it.
 modify
-  :: forall l h a r r1
+  :: forall proxy l h a r r1
    . Row.Cons l a r1 r
   => IsSymbol l
-  => SProxy l
+  => proxy l
   -> (a -> a)
   -> STRecord h r
   -> ST h Unit

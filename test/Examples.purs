@@ -3,11 +3,11 @@ module Examples where
 import Prelude
 
 import Record as Record
-import Data.Symbol (SProxy(..))
+import Type.Proxy (Proxy(..))
 
-x_ = SProxy :: SProxy "x"
-y_ = SProxy :: SProxy "y"
-z_ = SProxy :: SProxy "z"
+x_ = Proxy :: Proxy "x"
+y_ = Proxy :: Proxy "y"
+z_ = Proxy :: Proxy "z"
 
 gotX :: Int
 gotX = Record.get x_ { x: 1 }
