@@ -5,27 +5,36 @@ Notable changes to this project are documented in this file. The format is based
 ## [Unreleased]
 
 Breaking changes:
+- Added support for PureScript 0.14 and dropped support for all previous versions (#66)
 
 New features:
+- Added `buildFromScratch` for building from an empty record (#53)
+- Added `new` and `run` to `Record.ST` (#71)
+- Added `flip` function (#73)
 
 Bugfixes:
 
 Other improvements:
+- Updated `Record.Builder.merge` and `Record.Builder.union` to override existing fields (#73)
+- Replaced monomorphic proxies with `Type.Proxy.Proxy` and polymorphic variants (#67(
+- Removed `SProxy` from documentation (#70)
+- Migrated CI to GitHub Actions and updated installation instructions to use Spago (#69)
+- Added a changelog and pull request template (#74, #75)
 
 ## [v2.0.2](https://github.com/purescript/purescript-record/releases/tag/v2.0.2) - 2020-03-14
 
-* Fix typo in docs (@i-am-the-slime)
-* Fix travis
+- Fixed typo in docs (@i-am-the-slime)
+- Fixed travis build
 
 ## [v2.0.1](https://github.com/purescript/purescript-record/releases/tag/v2.0.1) - 2019-05-27
 
-* Drop typelevel-prelude dependency (@hdgarrood)
+- Dropped typelevel-prelude dependency (@hdgarrood)
 
 ## [v2.0.0](https://github.com/purescript/purescript-record/releases/tag/v2.0.0) - 2019-03-02
 
-* Bump dependencies (in particular, now using v4.x of typelevel-prelude) (@justinwoo)
-* Add some examples to the README (@justinwoo)
-* Add comments explaining Builder (@chexxor)
+- Bumped dependencies (in particular, now using v4.x of typelevel-prelude) (@justinwoo)
+- Added some examples to the README (@justinwoo)
+- Added comments explaining Builder (@chexxor)
 
 ## [v1.0.0](https://github.com/purescript/purescript-record/releases/tag/v1.0.0) - 2018-05-23
 
@@ -38,33 +47,32 @@ Other improvements:
 
 ## [v0.2.6](https://github.com/purescript/purescript-record/releases/tag/v0.2.6) - 2018-01-28
 
-Add `Builder.modify` (@justinwoo)
+- Added `Builder.modify` (@justinwoo)
 
 ## [v0.2.5](https://github.com/purescript/purescript-record/releases/tag/v0.2.5) - 2017-11-15
 
-Add `rename` and `Builder.rename` (@justinwoo)
+- Added `rename` and `Builder.rename` (@justinwoo)
 
 ## [v0.2.4](https://github.com/purescript/purescript-record/releases/tag/v0.2.4) - 2017-10-24
 
-Add `Data.Record.ST` module (@paf31)
+- Added `Data.Record.ST` module (@paf31)
 
 ## [v0.2.3](https://github.com/purescript/purescript-record/releases/tag/v0.2.3) - 2017-09-26
 
-Add `unsafeHas` (@natefaubion)
+- Added `unsafeHas` (@natefaubion)
 
 ## [v0.2.2](https://github.com/purescript/purescript-record/releases/tag/v0.2.2) - 2017-09-10
 
-Add `equal` function (@justinwoo)
+- Added `equal` function (@justinwoo)
 
 ## [v0.2.1](https://github.com/purescript/purescript-record/releases/tag/v0.2.1) - 2017-09-10
 
-Add `ST` and `Builder` modules for modifying and building records in-place.
+- Added `ST` and `Builder` modules for modifying and building records in-place.
 
 ## [v0.2.0](https://github.com/purescript/purescript-record/releases/tag/v0.2.0) - 2017-07-24
 
-Add unsafe versions of functions (@natefaubion)
+- Added unsafe versions of functions (@natefaubion)
 
 ## [v0.1.0](https://github.com/purescript/purescript-record/releases/tag/v0.1.0) - 2017-07-19
 
-Initial versioned release
-
+- Initial versioned release
