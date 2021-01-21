@@ -16,7 +16,7 @@ Bugfixes:
 
 Other improvements:
 - Updated `Record.Builder.merge` and `Record.Builder.union` to override existing fields (#73)
-- Replaced monomorphic proxies with `Type.Proxy.Proxy` and polymorphic variants (#67(
+- Replaced monomorphic proxies with `Type.Proxy.Proxy` and polymorphic variants (#67)
 - Removed `SProxy` from documentation (#70)
 - Migrated CI to GitHub Actions and updated installation instructions to use Spago (#69)
 - Added a changelog and pull request template (#74, #75)
