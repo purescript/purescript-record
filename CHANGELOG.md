@@ -6,6 +6,7 @@ Notable changes to this project are documented in this file. The format is based
 
 Breaking changes:
 - Added support for PureScript 0.14 and dropped support for all previous versions (#66)
+- Updated `Record.Builder.merge` and `Record.Builder.union` so that they behave like `Record.merge` and `Record.union`: fields from the argument override those of the record being built in case of overlaps. (#73)
 
 New features:
 - Added `buildFromScratch` for building from an empty record (#53)
@@ -15,7 +16,6 @@ New features:
 Bugfixes:
 
 Other improvements:
-- Updated `Record.Builder.merge` and `Record.Builder.union` to override existing fields (#73)
 - Replaced monomorphic proxies with `Type.Proxy.Proxy` and polymorphic variants (#67)
 - Removed `SProxy` from documentation (#70)
 - Migrated CI to GitHub Actions and updated installation instructions to use Spago (#69)
