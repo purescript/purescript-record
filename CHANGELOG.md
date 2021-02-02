@@ -10,7 +10,7 @@ Breaking changes:
 
 New features:
 - Added `buildFromScratch` for building from an empty record (#53)
-- Added `new` and `run` to `Record.ST` (#71)
+- Added `run` to `Record.ST` (#71, #77)
 - Added `flip` function (#73)
 
 Bugfixes:

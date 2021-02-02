@@ -1,7 +1,6 @@
 module Record.ST
   ( STRecord
   , run
-  , new
   , freeze
   , thaw
   , peek
@@ -28,9 +27,6 @@ type role STRecord nominal representational
 -- |
 -- | The rank-2 type prevents the record from escaping the scope of `run`.
 foreign import run :: forall r. (forall h. ST h (STRecord h r)) -> Record r
-
--- | Create a new, empty mutable record
-foreign import new :: forall h. ST h (STRecord h ())
 
 -- | Freeze a mutable record, creating a copy.
 foreign import freeze :: forall h r. STRecord h r -> ST h (Record r)
