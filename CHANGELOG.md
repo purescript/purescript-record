@@ -7,10 +7,10 @@ Notable changes to this project are documented in this file. The format is based
 Breaking changes:
 - Added support for PureScript 0.14 and dropped support for all previous versions (#66)
 - Updated `Record.Builder.merge` and `Record.Builder.union` so that they behave like `Record.merge` and `Record.union`: fields from the argument override those of the record being built in case of overlaps. (#73)
+- Removed `Record.ST` (#78)
 
 New features:
 - Added `buildFromScratch` for building from an empty record (#53)
-- Added `new` and `run` to `Record.ST` (#71)
 - Added `flip` function (#73)
 
 Bugfixes:

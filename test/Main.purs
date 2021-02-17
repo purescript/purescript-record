@@ -5,7 +5,6 @@ import Prelude
 import Effect (Effect)
 import Record (delete, equal, get, insert, merge, modify, rename, set)
 import Record.Builder as Builder
-import Record.ST (run, poke, thaw, modify) as ST
 import Record.Unsafe (unsafeHas)
 import Test.Assert (assert')
 import Type.Proxy (Proxy(..))
@@ -38,21 +37,6 @@ main = do
     unsafeHas "a" { a: 42 }
   assert' "unsafeHas2" $
     not $ unsafeHas "b" { a: 42 }
-
-  let
-    stTest1 = ST.run do
-      rec <- ST.thaw { x: 41, y: "" }
-      ST.poke x 42 rec
-      ST.poke y "testing" rec
-      pure rec
-    stTest2 = ST.run do
-      rec <- ST.thaw { x: 41 }
-      ST.modify x (_ + 1) rec
-      pure rec
-
-  assert' "pokeSTRecord" $
-    stTest1.x == 42 && stTest1.y == "testing"
-  assert' "ST.modify" $ stTest2.x == 42
 
   let testBuilder = Builder.build (Builder.insert x 42
                                   >>> Builder.merge { y: true, z: "testing" }
