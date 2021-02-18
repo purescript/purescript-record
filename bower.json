@@ -17,12 +17,12 @@
     "package.json"
   ],
   "dependencies": {
-    "purescript-functions": "master",
-    "purescript-prelude": "master",
-    "purescript-st": "master",
-    "purescript-unsafe-coerce": "master"
+    "purescript-functions": "^5.0.0",
+    "purescript-prelude": "^5.0.0",
+    "purescript-st": "^5.0.0",
+    "purescript-unsafe-coerce": "^5.0.0"
   },
   "devDependencies": {
-    "purescript-assert": "master"
+    "purescript-assert": "^5.0.0"
   }
 }
