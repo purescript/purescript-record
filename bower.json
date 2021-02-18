@@ -19,7 +19,6 @@
   "dependencies": {
     "purescript-functions": "^5.0.0",
     "purescript-prelude": "^5.0.0",
-    "purescript-st": "^5.0.0",
     "purescript-unsafe-coerce": "^5.0.0"
   },
   "devDependencies": {
