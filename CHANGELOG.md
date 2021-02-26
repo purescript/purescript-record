@@ -5,6 +5,16 @@ Notable changes to this project are documented in this file. The format is based
 ## [Unreleased]
 
 Breaking changes:
+
+New features:
+
+Bugfixes:
+
+Other improvements:
+
+## [v3.0.0](https://github.com/purescript/purescript-record/releases/tag/v3.0.0) - 2021-02-26
+
+Breaking changes:
 - Added support for PureScript 0.14 and dropped support for all previous versions (#66)
 - Updated `Record.Builder.merge` and `Record.Builder.union` so that they behave like `Record.merge` and `Record.union`: fields from the argument override those of the record being built in case of overlaps. (#73)
 - Removed `Record.ST` (#78)

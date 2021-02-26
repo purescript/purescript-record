@@ -50,7 +50,7 @@ mergedXY = Record.merge { x: 1 } { y: 1 }
 
 See the [tests](./test/Main.purs) for more examples.
 
-If you need to combine multiple operations and avoid intermediate values, you might consider using either [Record.Builder](https://pursuit.purescript.org/packages/purescript-record/docs/Record.Builder) or [Record.ST](https://pursuit.purescript.org/packages/purescript-record/docs/Record.ST).
+If you need to combine multiple operations and avoid intermediate values, you might consider using [Record.Builder](https://pursuit.purescript.org/packages/purescript-record/docs/Record.Builder).
 
 You can also find an explanation and example of how to use this library [in this tutorial](https://purescript-simple-json.readthedocs.io/en/latest/inferred-record-types.html) of the Simple-JSON docs.
 
