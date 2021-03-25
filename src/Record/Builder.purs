@@ -15,7 +15,6 @@ module Record.Builder
 
 import Prelude hiding (flip)
 
-import Data.Function (flip) as Function
 import Data.Function.Uncurried (runFn2)
 import Data.Symbol (class IsSymbol, reflectSymbol)
 import Prim.Row as Row
@@ -50,7 +49,7 @@ build (Builder b) r1 = b (copyRecord r1)
 
 -- | Build a record from scratch.
 buildFromScratch :: forall r. Builder (Record ()) (Record r) -> Record r
-buildFromScratch = Function.flip build {}
+buildFromScratch (Builder b) = b {}
 
 -- | Flip a function of one argument returning a builder.
 flip :: forall r1 r2 r3. (Record r1 -> Builder (Record r2) (Record r3)) -> Record r2 -> Builder (Record r1) (Record r3)
