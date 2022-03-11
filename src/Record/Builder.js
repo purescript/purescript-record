@@ -1,6 +1,6 @@
 "use strict";
 
-exports.copyRecord = function(rec) {
+export function copyRecord(rec) {
   var copy = {};
   for (var key in rec) {
     if ({}.hasOwnProperty.call(rec, key)) {
@@ -8,34 +8,34 @@ exports.copyRecord = function(rec) {
     }
   }
   return copy;
-};
+}
 
-exports.unsafeInsert = function(l) {
+export function unsafeInsert(l) {
   return function(a) {
     return function(rec) {
       rec[l] = a;
       return rec;
     };
   };
-};
+}
 
-exports.unsafeModify = function(l) {
+export function unsafeModify(l) {
   return function (f) {
     return function(rec) {
       rec[l] = f(rec[l]);
       return rec;
     };
   };
-};
+}
 
-exports.unsafeDelete = function(l) {
+export function unsafeDelete(l) {
   return function(rec) {
     delete rec[l];
     return rec;
   };
-};
+}
 
-exports.unsafeRename = function(l1) {
+export function unsafeRename(l1) {
   return function (l2) {
     return function (rec) {
       rec[l2] = rec[l1];
@@ -43,4 +43,4 @@ exports.unsafeRename = function(l1) {
       return rec;
     };
   };
-};
+}
