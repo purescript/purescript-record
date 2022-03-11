@@ -1,5 +1,3 @@
-"use strict";
-
 export function copyRecord(rec) {
   var copy = {};
   for (var key in rec) {

@@ -1,5 +1,3 @@
-"use strict";
-
 export function unsafeUnionFn(r1, r2) {
   var copy = {};
   for (var k1 in r2) {
