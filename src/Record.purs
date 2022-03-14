@@ -34,10 +34,10 @@ import Unsafe.Coerce (unsafeCoerce)
 -- | get (Proxy :: Proxy "x") :: forall r a. { x :: a | r } -> a
 -- | ```
 get
-  :: forall proxy r r' l a
+  :: forall r r' l a
    . IsSymbol l
   => Cons l a r' r
-  => proxy l
+  => Proxy l
   -> Record r
   -> a
 get l r = unsafeGet (reflectSymbol l) r
@@ -52,11 +52,11 @@ get l r = unsafeGet (reflectSymbol l) r
 -- |   :: forall r a b. a -> { x :: b | r } -> { x :: a | r }
 -- | ```
 set
-  :: forall proxy r1 r2 r l a b
+  :: forall r1 r2 r l a b
    . IsSymbol l
   => Cons l a r r1
   => Cons l b r r2
-  => proxy l
+  => Proxy l
   -> b
   -> Record r1
   -> Record r2
@@ -72,11 +72,11 @@ set l b r = unsafeSet (reflectSymbol l) b r
 -- |   :: forall r a b. (a -> b) -> { x :: a | r } -> { x :: b | r }
 -- | ```
 modify
-  :: forall proxy r1 r2 r l a b
+  :: forall r1 r2 r l a b
    . IsSymbol l
   => Cons l a r r1
   => Cons l b r r2
-  => proxy l
+  => Proxy l
   -> (a -> b)
   -> Record r1
   -> Record r2
@@ -92,11 +92,11 @@ modify l f r = set l (f (get l r)) r
 -- |   :: forall r a. Lacks "x" r => a -> { | r } -> { x :: a | r }
 -- | ```
 insert
-  :: forall proxy r1 r2 l a
+  :: forall r1 r2 l a
    . IsSymbol l
   => Lacks l r1
   => Cons l a r1 r2
-  => proxy l
+  => Proxy l
   -> a
   -> Record r1
   -> Record r2
@@ -115,11 +115,11 @@ insert l a r = unsafeSet (reflectSymbol l) a r
 -- |   :: forall r a. Lacks "x" r => { x :: a | r } -> { | r }
 -- | ```
 delete
-  :: forall proxy r1 r2 l a
+  :: forall r1 r2 l a
    . IsSymbol l
   => Lacks l r1
   => Cons l a r1 r2
-  => proxy l
+  => Proxy l
   -> Record r2
   -> Record r1
 delete l r = unsafeDelete (reflectSymbol l) r
@@ -136,15 +136,15 @@ delete l r = unsafeDelete (reflectSymbol l) r
 -- | rename (Proxy :: Proxy "x") (Proxy :: Proxy "y")
 -- |   :: forall a r. Lacks "x" r => Lacks "y" r => { x :: a | r} -> { y :: a | r}
 -- | ```
-rename :: forall proxy prev next ty input inter output
+rename :: forall prev next ty input inter output
    . IsSymbol prev
   => IsSymbol next
   => Cons prev ty inter input
   => Lacks prev inter
   => Cons next ty inter output
   => Lacks next inter
-  => proxy prev
-  -> proxy next
+  => Proxy prev
+  -> Proxy next
   -> Record input
   -> Record output
 rename prev next record =
@@ -224,7 +224,7 @@ equal
 equal a b = equalFields (Proxy :: Proxy rs) a b
 
 class EqualFields (rs :: RowList Type) (row :: Row Type) | rs -> row where
-  equalFields :: forall rlproxy. rlproxy rs -> Record row -> Record row -> Boolean
+  equalFields :: Proxy rs -> Record row -> Record row -> Boolean
 
 instance equalFieldsCons
   ::
