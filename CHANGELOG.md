@@ -6,7 +6,7 @@ Notable changes to this project are documented in this file. The format is based
 
 Breaking changes:
 - Migrate FFI to ES modules (#81 by @kl0tl and @JordanMartinez)
-- Removed `forall proxy` workaround (#81 by @JordanMartinez
+- Replaced polymorphic proxies with monomorphic `Proxy` (#81 by @JordanMartinez)
 
 New features:
 
