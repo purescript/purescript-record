@@ -1,6 +1,4 @@
-"use strict";
-
-exports.unsafeUnionFn = function(r1, r2) {
+export function unsafeUnionFn(r1, r2) {
   var copy = {};
   for (var k1 in r2) {
     if ({}.hasOwnProperty.call(r2, k1)) {
@@ -13,4 +11,4 @@ exports.unsafeUnionFn = function(r1, r2) {
     }
   }
   return copy;
-};
+}
