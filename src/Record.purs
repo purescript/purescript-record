@@ -177,7 +177,7 @@ merge l r = runFn2 unsafeUnionFn l r
 -- | For example:
 -- |
 -- | ```purescript
--- | merge { x: 1, y: "y" } { y: 2, z: true }
+-- | mergeFlipped { x: 1, y: "y" } { y: 2, z: true }
 -- |  :: { x :: Int, y :: Int, z :: Boolean }
 -- | ```
 mergeFlipped
