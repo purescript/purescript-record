@@ -1,18 +1,21 @@
 module Record
-  ( get
-  , set
-  , modify
-  , insert
-  , delete
-  , rename
-  , equal
-  , merge
-  , union
-  , disjointUnion
-  , nub
+  ( (//)
   , class EqualFields
+  , delete
+  , disjointUnion
+  , equal
   , equalFields
-  ) where
+  , get
+  , insert
+  , merge
+  , mergeFlipped
+  , modify
+  , nub
+  , rename
+  , set
+  , union
+  )
+  where
 
 import Prelude
 
@@ -167,6 +170,27 @@ merge
   -> Record r2
   -> Record r4
 merge l r = runFn2 unsafeUnionFn l r
+
+-- | Like `merge` but with its arguments flipped. I.e. merges two records with the seconds record's labels taking precedence in the
+-- | case of overlaps.
+-- |
+-- | For example:
+-- |
+-- | ```purescript
+-- | merge { x: 1, y: "y" } { y: 2, z: true }
+-- |  :: { x :: Int, y :: Int, z :: Boolean }
+-- | ```
+mergeFlipped
+  :: forall r1 r2 r3 r4
+   . Union r1 r2 r3
+  => Nub r3 r4
+  => Record r2
+  -> Record r1
+  -> Record r4
+mergeFlipped = flip merge
+
+-- | Operator alias for mergeFlipped (right-associative / precedence 1)
+infixr 1 mergeFlipped as //
 
 -- | Merges two records with the first record's labels taking precedence in the
 -- | case of overlaps. Unlike `merge`, this does not remove duplicate labels
