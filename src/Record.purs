@@ -31,6 +31,13 @@ import Unsafe.Coerce (unsafeCoerce)
 -- | For example:
 -- |
 -- | ```purescript
+-- | get (Proxy :: Proxy "x") { x: 14 }
+-- | -- 14
+-- | ```
+-- |
+-- | More generally:
+-- |
+-- | ```purescript
 -- | get (Proxy :: Proxy "x") :: forall r a. { x :: a | r } -> a
 -- | ```
 get
@@ -46,6 +53,13 @@ get l r = unsafeGet (reflectSymbol l) r
 -- | a type-level string.
 -- |
 -- | For example:
+-- |
+-- | ```purescript
+-- | set (Proxy :: Proxy "x") "new fixed value" { x: "original" }
+-- | -- { x: "new fixed value" }
+-- | ```
+-- |
+-- | More generally:
 -- |
 -- | ```purescript
 -- | set (Proxy :: Proxy "x")
@@ -68,6 +82,13 @@ set l b r = unsafeSet (reflectSymbol l) b r
 -- | For example:
 -- |
 -- | ```purescript
+-- | modify (Proxy :: Proxy "x") toUpper { x: "example" }
+-- | -- { x: "EXAMPLE" }
+-- | ```
+-- |
+-- | More generally:
+-- |
+-- | ```purescript
 -- | modify (Proxy :: Proxy "x")
 -- |   :: forall r a b. (a -> b) -> { x :: a | r } -> { x :: b | r }
 -- | ```
@@ -86,6 +107,13 @@ modify l f r = set l (f (get l r)) r
 -- | a type-level string.
 -- |
 -- | For example:
+-- |
+-- | ```purescript
+-- | insert (Proxy :: Proxy "x") "a new value" { y: 14 }
+-- | -- { x: "a new value", y: 14 }
+-- | ```
+-- |
+-- | More generally:
 -- |
 -- | ```purescript
 -- | insert (Proxy :: Proxy "x")
@@ -111,6 +139,13 @@ insert l a r = unsafeSet (reflectSymbol l) a r
 -- | For example:
 -- |
 -- | ```purescript
+-- | delete (Proxy :: Proxy "x") { x: "I will leave", y: "I stay" }
+-- | -- { y: "I stay" }
+-- | ```
+-- |
+-- | More generally:
+-- |
+-- | ```purescript
 -- | delete (Proxy :: Proxy "x")
 -- |   :: forall r a. Lacks "x" r => { x :: a | r } -> { | r }
 -- | ```
@@ -131,6 +166,13 @@ delete l r = unsafeDelete (reflectSymbol l) r
 -- | Since duplicate labels are allowed, this is checked with a type class constraint.
 -- |
 -- | For example:
+-- |
+-- | ```purescript
+-- | rename (Proxy :: Proxy "x") (Proxy :: Proxy "y") { x: "I get a new key", z: "I stay" }
+-- | -- { y: "I get a new key", z: "I stay" }
+-- | ```
+-- |
+-- | More generally:
 -- |
 -- | ```purescript
 -- | rename (Proxy :: Proxy "x") (Proxy :: Proxy "y")
@@ -157,6 +199,13 @@ rename prev next record =
 -- |
 -- | ```purescript
 -- | merge { x: 1, y: "y" } { y: 2, z: true }
+-- | -- { x: 1, y: "y", z: true }
+-- | ```
+-- |
+-- | More generally:
+-- |
+-- | ```purescript
+-- | merge { x: 1, y: "y" } { y: 2, z: true }
 -- |  :: { x :: Int, y :: String, z :: Boolean }
 -- | ```
 merge
@@ -177,6 +226,13 @@ merge l r = runFn2 unsafeUnionFn l r
 -- |
 -- | ```purescript
 -- | union { x: 1, y: "y" } { y: 2, z: true }
+-- | -- { x: 1, y: "y", z: true }
+-- | ```
+-- |
+-- | More generally:
+-- |
+-- | ```purescript
+-- | union { x: 1, y: "y" } { y: 2, z: true }
 -- |  :: { x :: Int, y :: String, y :: Int, z :: Boolean }
 -- | ```
 union
@@ -191,7 +247,19 @@ union l r = runFn2 unsafeUnionFn l r
 -- | better inference than `merge` when the resulting record type is known,
 -- | but one argument is not.
 -- |
--- | For example, hole `?help` is inferred to have type `{ b :: Int }` here:
+-- | For example:
+-- | 
+-- | ```purescript
+-- | disjointUnion { a: 5 } { b: 7 }
+-- | -- { a: 5, b: 7 }
+-- | ```
+-- | 
+-- | However, this example does not compile because both records share the key `a`:
+-- | ```purescript
+-- | disjointUnion { a: 5 } { a: 7, b: 5 }
+-- | ```
+-- | 
+-- | In the following example, hole `?help` is inferred to have type `{ b :: Int }`:
 -- |
 -- | ```purescript
 -- | disjointUnion { a: 5 } ?help :: { a :: Int, b :: Int }
