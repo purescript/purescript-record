@@ -31,16 +31,15 @@ import Unsafe.Coerce (unsafeCoerce)
 -- | For example:
 -- |
 -- | ```purescript
--- | get (Proxy :: Proxy "x") :: forall r a. { x :: a | r } -> a
+-- | get @"x" :: forall r a. { x :: a | r } -> a
 -- | ```
 get
-  :: forall r r' l a
+  :: forall r r' @l a
    . IsSymbol l
   => Cons l a r' r
-  => Proxy l
-  -> Record r
+  => Record r
   -> a
-get l r = unsafeGet (reflectSymbol l) r
+get r = unsafeGet (reflectSymbol (Proxy :: _ l)) r
 
 -- | Set a property for a label which is specified using a value-level proxy for
 -- | a type-level string.
@@ -48,19 +47,18 @@ get l r = unsafeGet (reflectSymbol l) r
 -- | For example:
 -- |
 -- | ```purescript
--- | set (Proxy :: Proxy "x")
+-- | set @"x"
 -- |   :: forall r a b. a -> { x :: b | r } -> { x :: a | r }
 -- | ```
 set
-  :: forall r1 r2 r l a b
+  :: forall r1 r2 r @l a b
    . IsSymbol l
   => Cons l a r r1
   => Cons l b r r2
-  => Proxy l
-  -> b
+  => b
   -> Record r1
   -> Record r2
-set l b r = unsafeSet (reflectSymbol l) b r
+set b r = unsafeSet (reflectSymbol (Proxy :: _ l)) b r
 
 -- | Modify a property for a label which is specified using a value-level proxy for
 -- | a type-level string.
@@ -68,19 +66,18 @@ set l b r = unsafeSet (reflectSymbol l) b r
 -- | For example:
 -- |
 -- | ```purescript
--- | modify (Proxy :: Proxy "x")
+-- | modify @"x"
 -- |   :: forall r a b. (a -> b) -> { x :: a | r } -> { x :: b | r }
 -- | ```
 modify
-  :: forall r1 r2 r l a b
+  :: forall r1 r2 r @l a b
    . IsSymbol l
   => Cons l a r r1
   => Cons l b r r2
-  => Proxy l
-  -> (a -> b)
+  => (a -> b)
   -> Record r1
   -> Record r2
-modify l f r = set l (f (get l r)) r
+modify f r = set @l (f (get @l r)) r
 
 -- | Insert a new property for a label which is specified using a value-level proxy for
 -- | a type-level string.
@@ -88,19 +85,18 @@ modify l f r = set l (f (get l r)) r
 -- | For example:
 -- |
 -- | ```purescript
--- | insert (Proxy :: Proxy "x")
+-- | insert @"x"
 -- |   :: forall r a. Lacks "x" r => a -> { | r } -> { x :: a | r }
 -- | ```
 insert
-  :: forall r1 r2 l a
+  :: forall r1 r2 @l a
    . IsSymbol l
   => Lacks l r1
   => Cons l a r1 r2
-  => Proxy l
-  -> a
+  => a
   -> Record r1
   -> Record r2
-insert l a r = unsafeSet (reflectSymbol l) a r
+insert a r = unsafeSet (reflectSymbol (Proxy :: _ l)) a r
 
 -- | Delete a property for a label which is specified using a value-level proxy for
 -- | a type-level string.
@@ -111,18 +107,17 @@ insert l a r = unsafeSet (reflectSymbol l) a r
 -- | For example:
 -- |
 -- | ```purescript
--- | delete (Proxy :: Proxy "x")
+-- | delete @"x"
 -- |   :: forall r a. Lacks "x" r => { x :: a | r } -> { | r }
 -- | ```
 delete
-  :: forall r1 r2 l a
+  :: forall r1 r2 @l a
    . IsSymbol l
   => Lacks l r1
   => Cons l a r1 r2
-  => Proxy l
-  -> Record r2
+  => Record r2
   -> Record r1
-delete l r = unsafeDelete (reflectSymbol l) r
+delete r = unsafeDelete (reflectSymbol (Proxy :: _ l)) r
 
 -- | Rename a property for a label which is specified using a value-level proxy for
 -- | a type-level string.
@@ -133,23 +128,21 @@ delete l r = unsafeDelete (reflectSymbol l) r
 -- | For example:
 -- |
 -- | ```purescript
--- | rename (Proxy :: Proxy "x") (Proxy :: Proxy "y")
+-- | rename @"x" @"y"
 -- |   :: forall a r. Lacks "x" r => Lacks "y" r => { x :: a | r} -> { y :: a | r}
 -- | ```
 rename
-  :: forall prev next ty input inter output
+  :: forall @prev @next ty input inter output
    . IsSymbol prev
   => IsSymbol next
   => Cons prev ty inter input
   => Lacks prev inter
   => Cons next ty inter output
   => Lacks next inter
-  => Proxy prev
-  -> Proxy next
-  -> Record input
+  => Record input
   -> Record output
-rename prev next record =
-  insert next (get prev record) (delete prev record :: Record inter)
+rename record =
+  insert @next (get @prev record) (delete @prev record :: Record inter)
 
 -- | Merges two records with the first record's labels taking precedence in the
 -- | case of overlaps.
@@ -222,10 +215,10 @@ equal
   => Record r
   -> Record r
   -> Boolean
-equal a b = equalFields (Proxy :: Proxy rs) a b
+equal a b = equalFields @rs a b
 
 class EqualFields (rs :: RowList Type) (row :: Row Type) | rs -> row where
-  equalFields :: Proxy rs -> Record row -> Record row -> Boolean
+  equalFields :: Record row -> Record row -> Boolean
 
 instance equalFieldsCons ::
   ( IsSymbol name
@@ -234,10 +227,10 @@ instance equalFieldsCons ::
   , EqualFields tail row
   ) =>
   EqualFields (Cons name ty tail) row where
-  equalFields _ a b = get' a == get' b && equalRest a b
+  equalFields a b = get' a == get' b && equalRest a b
     where
-    get' = get (Proxy :: Proxy name)
-    equalRest = equalFields (Proxy :: Proxy tail)
+    get' = get @name
+    equalRest = equalFields @tail
 
 instance equalFieldsNil :: EqualFields Nil row where
-  equalFields _ _ _ = true
+  equalFields _ _ = true
