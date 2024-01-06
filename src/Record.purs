@@ -136,7 +136,8 @@ delete l r = unsafeDelete (reflectSymbol l) r
 -- | rename (Proxy :: Proxy "x") (Proxy :: Proxy "y")
 -- |   :: forall a r. Lacks "x" r => Lacks "y" r => { x :: a | r} -> { y :: a | r}
 -- | ```
-rename :: forall prev next ty input inter output
+rename
+  :: forall prev next ty input inter output
    . IsSymbol prev
   => IsSymbol next
   => Cons prev ty inter input
@@ -226,17 +227,17 @@ equal a b = equalFields (Proxy :: Proxy rs) a b
 class EqualFields (rs :: RowList Type) (row :: Row Type) | rs -> row where
   equalFields :: Proxy rs -> Record row -> Record row -> Boolean
 
-instance equalFieldsCons
-  ::
+instance equalFieldsCons ::
   ( IsSymbol name
   , Eq ty
   , Cons name ty tailRow row
   , EqualFields tail row
-  ) => EqualFields (Cons name ty tail) row where
+  ) =>
+  EqualFields (Cons name ty tail) row where
   equalFields _ a b = get' a == get' b && equalRest a b
     where
-      get' = get (Proxy :: Proxy name)
-      equalRest = equalFields (Proxy :: Proxy tail)
+    get' = get (Proxy :: Proxy name)
+    equalRest = equalFields (Proxy :: Proxy tail)
 
 instance equalFieldsNil :: EqualFields Nil row where
   equalFields _ _ _ = true
