@@ -20,7 +20,7 @@ import Data.Function.Uncurried (runFn2)
 import Data.Symbol (class IsSymbol, reflectSymbol)
 import Prim.Row as Row
 import Record.Unsafe.Union (unsafeUnionFn)
-import Type.Proxy (Proxy)
+import Type.Proxy (Proxy(..))
 import Unsafe.Coerce (unsafeCoerce)
 
 foreign import copyRecord :: forall r1. Record r1 -> Record r1
@@ -41,12 +41,12 @@ foreign import unsafeRename :: forall r1 r2. String -> String -> Record r1 -> Re
 -- | For example:
 -- |
 -- | ```purescript
--- | build (insert x 42 >>> insert y "testing") {} :: { x :: Int, y :: String }
+-- | build (insert @"x" 42 >>> insert @"y" "testing") {} :: { x :: Int, y :: String }
 -- | ```
 newtype Builder a b = Builder (a -> b)
 
 -- | Build a record, starting from some other record.
-build :: forall r1 r2. Builder (Record r1) (Record r2) -> Record r1 -> Record r2
+build :: forall @r1 r2. Builder (Record r1) (Record r2) -> Record r1 -> Record r2
 build (Builder b) r1 = b (copyRecord r1)
 
 -- | Build a record from scratch.
@@ -62,48 +62,44 @@ derive newtype instance categoryBuilder :: Category Builder
 
 -- | Build by inserting a new field.
 insert
-  :: forall l a r1 r2
+  :: forall @l a r1 r2
    . Row.Cons l a r1 r2
   => Row.Lacks l r1
   => IsSymbol l
-  => Proxy l
-  -> a
+  => a
   -> Builder (Record r1) (Record r2)
-insert l a = Builder \r1 -> unsafeInsert (reflectSymbol l) a r1
+insert a = Builder \r1 -> unsafeInsert (reflectSymbol (Proxy :: _ l)) a r1
 
 -- | Build by modifying an existing field.
 modify
-  :: forall l a b r r1 r2
+  :: forall @l a b r r1 r2
    . Row.Cons l a r r1
   => Row.Cons l b r r2
   => IsSymbol l
-  => Proxy l
-  -> (a -> b)
+  => (a -> b)
   -> Builder (Record r1) (Record r2)
-modify l f = Builder \r1 -> unsafeModify (reflectSymbol l) f r1
+modify f = Builder \r1 -> unsafeModify (reflectSymbol (Proxy :: _ l)) f r1
 
 -- | Build by deleting an existing field.
 delete
-  :: forall l a r1 r2
+  :: forall @l a r1 r2
    . IsSymbol l
-   => Row.Lacks l r1
-   => Row.Cons l a r1 r2
-   => Proxy l
-   -> Builder (Record r2) (Record r1)
-delete l = Builder \r2 -> unsafeDelete (reflectSymbol l) r2
+  => Row.Lacks l r1
+  => Row.Cons l a r1 r2
+  => Builder (Record r2) (Record r1)
+delete = Builder \r2 -> unsafeDelete (reflectSymbol (Proxy :: _ l)) r2
 
 -- | Build by renaming an existing field.
-rename :: forall l1 l2 a r1 r2 r3
+rename
+  :: forall @l1 @l2 a r1 r2 r3
    . IsSymbol l1
   => IsSymbol l2
   => Row.Cons l1 a r2 r1
   => Row.Lacks l1 r2
   => Row.Cons l2 a r2 r3
   => Row.Lacks l2 r2
-  => Proxy l1
-  -> Proxy l2
-  -> Builder (Record r1) (Record r3)
-rename l1 l2 = Builder \r1 -> unsafeRename (reflectSymbol l1) (reflectSymbol l2) r1
+  => Builder (Record r1) (Record r3)
+rename = Builder \r1 -> unsafeRename (reflectSymbol (Proxy :: _ l1)) (reflectSymbol (Proxy :: _ l2)) r1
 
 -- | Build by merging existing fields from another record, taking precedence
 -- | in the case of overlaps.
