@@ -11,6 +11,7 @@ New features:
 Bugfixes:
 
 Other improvements:
+- Skipped needing to copy initiial record for `buildFromScratch`. (#80)
 
 ## [v4.0.0](https://github.com/purescript/purescript-record/releases/tag/v4.0.0) - 2022-04-27
 
