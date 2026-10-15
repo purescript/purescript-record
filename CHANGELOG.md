@@ -6,7 +6,7 @@ Notable changes to this project are documented in this file. The format is based
 
 Other improvements:
 
-- Migrate from Bower/Pulp to Spago and update CI
+- Migrate from Bower/Pulp to Spago and update CI (#87 by @thomashoneyman)
 
 ## [v4.0.0](https://github.com/purescript/purescript-record/releases/tag/v4.0.0) - 2022-04-27
 
