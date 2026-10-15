@@ -86,14 +86,15 @@ modify l f = Builder \r1 -> unsafeModify (reflectSymbol l) f r1
 delete
   :: forall l a r1 r2
    . IsSymbol l
-   => Row.Lacks l r1
-   => Row.Cons l a r1 r2
-   => Proxy l
-   -> Builder (Record r2) (Record r1)
+  => Row.Lacks l r1
+  => Row.Cons l a r1 r2
+  => Proxy l
+  -> Builder (Record r2) (Record r1)
 delete l = Builder \r2 -> unsafeDelete (reflectSymbol l) r2
 
 -- | Build by renaming an existing field.
-rename :: forall l1 l2 a r1 r2 r3
+rename
+  :: forall l1 l2 a r1 r2 r3
    . IsSymbol l1
   => IsSymbol l2
   => Row.Cons l1 a r2 r1
