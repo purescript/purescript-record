@@ -9,8 +9,8 @@ export function copyRecord(rec) {
 }
 
 export function unsafeInsert(l) {
-  return function(a) {
-    return function(rec) {
+  return function (a) {
+    return function (rec) {
       rec[l] = a;
       return rec;
     };
@@ -19,7 +19,7 @@ export function unsafeInsert(l) {
 
 export function unsafeModify(l) {
   return function (f) {
-    return function(rec) {
+    return function (rec) {
       rec[l] = f(rec[l]);
       return rec;
     };
@@ -27,7 +27,7 @@ export function unsafeModify(l) {
 }
 
 export function unsafeDelete(l) {
-  return function(rec) {
+  return function (rec) {
     delete rec[l];
     return rec;
   };
