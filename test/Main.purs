@@ -30,58 +30,51 @@ main = do
     get y (rename x y { x: 42 }) == 42
   assert' "equal" $
     equal { a: 1, b: "b", c: true } { a: 1, b: "b", c: true }
-  assert' "equal2"
-    $ not
-    $ equal { a: 1, b: "b", c: true } { a: 1, b: "b", c: false }
+  assert' "equal2" $
+    not (equal { a: 1, b: "b", c: true } { a: 1, b: "b", c: false })
   assert' "merge" $
     equal { x: 1, y: "y" } (merge { y: "y" } { x: 1, y: 2 })
   assert' "unsafeHas1" $
     unsafeHas "a" { a: 42 }
-  assert' "unsafeHas2"
-    $ not
-    $ unsafeHas "b" { a: 42 }
+  assert' "unsafeHas2" $
+    not (unsafeHas "b" { a: 42 })
 
   let
-    testBuilder = Builder.build
-      ( Builder.insert x 42
-          >>> Builder.merge { y: true, z: "testing" }
-          >>> Builder.delete y
-          >>> Builder.modify x show
-          >>> Builder.rename z y
-      )
-      {}
+    builder =
+      Builder.insert x 42
+        >>> Builder.merge { y: true, z: "testing" }
+        >>> Builder.delete y
+        >>> Builder.modify x show
+        >>> Builder.rename z y
+    testBuilder = Builder.build builder {}
 
   assert' "Record.Builder" $
     testBuilder.x == "42" && testBuilder.y == "testing"
 
+  let
+    merged =
+      Builder.build (Builder.merge { x: 1, y: "y" }) { y: 2, z: true }
+        :: { x :: Int, y :: String, z :: Boolean }
   assert' "Record.Builder.merge" $
-    let
-      { x, y, z } =
-        Builder.build (Builder.merge { x: 1, y: "y" }) { y: 2, z: true }
-          :: { x :: Int, y :: String, z :: Boolean }
-    in
-      x == 1 && y == "y" && z
+    merged.x == 1 && merged.y == "y" && merged.z
 
+  let
+    unioned =
+      Builder.build (Builder.union { x: 1, y: "y" }) { y: 2, z: true }
+        :: { x :: Int, y :: String, y :: Int, z :: Boolean }
   assert' "Record.Builder.union" $
-    let
-      { x, y, z } =
-        Builder.build (Builder.union { x: 1, y: "y" }) { y: 2, z: true }
-          :: { x :: Int, y :: String, y :: Int, z :: Boolean }
-    in
-      x == 1 && y == "y" && z
+    unioned.x == 1 && unioned.y == "y" && unioned.z
 
+  let
+    flipMerged =
+      Builder.build (Builder.flip Builder.merge { x: 1, y: "y" }) { y: 2, z: true }
+        :: { x :: Int, y :: Int, z :: Boolean }
   assert' "Record.Builder.flip merge" $
-    let
-      { x, y, z } =
-        Builder.build (Builder.flip Builder.merge { x: 1, y: "y" }) { y: 2, z: true }
-          :: { x :: Int, y :: Int, z :: Boolean }
-    in
-      x == 1 && y == 2 && z
+    flipMerged.x == 1 && flipMerged.y == 2 && flipMerged.z
 
+  let
+    flipUnioned =
+      Builder.build (Builder.flip Builder.union { x: 1, y: "y" }) { y: 2, z: true }
+        :: { x :: Int, y :: Int, y :: String, z :: Boolean }
   assert' "Record.Builder.flip union" $
-    let
-      { x, y, z } =
-        Builder.build (Builder.flip Builder.union { x: 1, y: "y" }) { y: 2, z: true }
-          :: { x :: Int, y :: Int, y :: String, z :: Boolean }
-    in
-      x == 1 && y == 2 && z
+    flipUnioned.x == 1 && flipUnioned.y == 2 && flipUnioned.z
